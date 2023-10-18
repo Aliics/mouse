@@ -1,7 +1,5 @@
 package mouse
 
-type Headers = Map[String, String]
-
 object Headers {
   def apply(): Headers = Map()
 

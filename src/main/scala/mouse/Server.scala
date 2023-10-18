@@ -1,5 +1,7 @@
 package mouse
 
+import mouse.Implicits.MethodEx
+
 import java.io.{BufferedReader, InputStreamReader}
 import java.net.{ServerSocket, Socket}
 import java.util.concurrent.ConcurrentLinkedDeque
@@ -73,7 +75,7 @@ class Server(val routes: Routes, val address: String = ":8080")(implicit private
   }
 
   private def invokeRouteHandler(req: Request) = {
-    routes(req.uri) match {
+    routes(req.method, req.uri) match {
       case Some(route) =>
         route(req)
       case None =>
@@ -85,8 +87,10 @@ class Server(val routes: Routes, val address: String = ":8080")(implicit private
     val raw =
       s"""HTTP/1.1 ${res.statusCode.code} ${res.statusCode.text}\r
          |${res.headers.mkString("\r\n")}\r
-         |${res.body}""".stripMargin
+         |${res.body}
+         |""".stripMargin
     conn.getOutputStream.write(raw.getBytes)
+    conn.getOutputStream.flush()
     conn.close()
   }
 }

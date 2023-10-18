@@ -1,5 +1,7 @@
 package mouse
 
+import mouse.Routes.Path
+
 import java.time.Instant
 import scala.annotation.tailrec
 import scala.concurrent.duration.Duration
@@ -8,15 +10,19 @@ import scala.language.implicitConversions
 import scala.util.Success
 
 object Implicits {
-  implicit def partialFunctionToRoute(pf: PartialFunction[Request, Future[Response]]): Route = new Route {
-    override def handle(req: Request): Future[Response] = pf(req)
-  }
+  implicit def functionToRoute(f: Function[Request, Future[Response]]): Route = (req: Request) => f(req)
+
+  implicit def stringToMatchAllPath(s: String): Routes.Path = None -> s
 
   implicit class ServerEx(server: Server) {
     def runBlocking(): Unit = {
       server.accept()
       Await.result(server.handle(), Duration.Inf)
     }
+  }
+
+  implicit class MethodEx(method: Method) {
+    def /(uri: String): Path = Some(method) -> uri
   }
 
   implicit class HeadersEx(headers: Headers) {

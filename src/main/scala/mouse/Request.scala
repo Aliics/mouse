@@ -19,6 +19,8 @@ object Method {
   case object Put extends Method
   case object Trace extends Method
 
+  def all: Set[Method] = Set(Connect, Delete, Get, Head, Options, Patch, Post, Put, Trace)
+
   def apply(s: String): Method = s.toLowerCase match {
     case "connect" => Connect
     case "delete" => Delete
