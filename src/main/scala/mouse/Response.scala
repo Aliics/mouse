@@ -6,6 +6,11 @@ case class Response(
   body: String,
 )
 
+object Ok {
+  def apply(body: String, headers: Map[String, String] = Map()): Response =
+    Response(StatusCode.Ok, headers, body)
+}
+
 sealed trait StatusCode {
   def code: Int
 
