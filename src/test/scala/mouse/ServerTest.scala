@@ -9,7 +9,7 @@ import scala.concurrent.Future
 class ServerTest extends AnyFunSuiteLike {
   test("stand up a server") {
     val routes = Routes(
-      ("/echo", req => Future.successful(Response(StatusCode.Ok, req.headers, req.body))),
+      ("/echo", req => Future.successful(Ok(req.body))),
     )
 
     new Server(routes).runBlocking()
