@@ -12,9 +12,10 @@ import scala.concurrent.Future
 class ServerTest extends AnyFunSuiteLike {
   test("stand up a server") {
     val routes = Routes(
-      ("/echo", req => Future.successful(Ok(req.body))),
+      ("/hello", req => Future.successful(Ok(req.body))),
       (Get / "/hello", { req =>
-        Future.successful(Ok(s"""Hello, ${req.params.getOrElse("name", "World!")}!"""))
+        val name = req.params.getOrElse("name", "World")
+        Future.successful(Ok(s"""Hello, $name!"""))
       }),
     )
 
