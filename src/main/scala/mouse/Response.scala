@@ -11,14 +11,22 @@ object Ok {
     Response(StatusCode.Ok, headers, body)
 }
 
-sealed trait StatusCode {
-  def code: Int
-
-  def text: String
+object BadRequest {
+  def apply(body: String, headers: Map[String, String] = Map()): Response =
+    Response(StatusCode.BadRequest, headers, body)
 }
-object StatusCode {
-  case object Ok extends StatusCode {
-    def code = 200
-    def text = "OK"
-  }
+
+object Unauthorized {
+  def apply(body: String, headers: Map[String, String] = Map()): Response =
+    Response(StatusCode.Unauthorized, headers, body)
+}
+
+object NotFound {
+  def apply(body: String, headers: Map[String, String] = Map()): Response =
+    Response(StatusCode.NotFound, headers, body)
+}
+
+object InternalServerError {
+  def apply(body: String, headers: Map[String, String] = Map()): Response =
+    Response(StatusCode.InternalServerError, headers, body)
 }
