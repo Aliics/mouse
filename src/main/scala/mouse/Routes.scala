@@ -6,7 +6,7 @@ import scala.concurrent.Future
 class Routes {
   private val routesMapping: mutable.Map[String, Route] = mutable.Map()
 
-  def apply(uri: String): Route = routesMapping(uri)
+  def apply(uri: String): Option[Route] = routesMapping.get(uri)
 }
 
 object Routes {

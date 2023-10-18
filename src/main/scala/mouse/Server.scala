@@ -29,7 +29,7 @@ class Server(val routes: Routes, val address: String = ":8080")(implicit private
       .traverse(allUnhandledConns()) { conn =>
         for {
           req <- parseRequest(conn)
-          res <- routes(req.uri)(req)
+          res <- invokeRouteHandler(req)
           _ <- writeResponse(conn, res)
         } yield ()
       }
@@ -72,11 +72,19 @@ class Server(val routes: Routes, val address: String = ":8080")(implicit private
     }
   }
 
+  private def invokeRouteHandler(req: Request) = {
+    routes(req.uri) match {
+      case Some(route) =>
+        route(req)
+      case None =>
+        Future.successful(NotFound(s"""Could not find route "${req.uri}".\n"""))
+    }
+  }
+
   private def writeResponse(conn: Socket, res: Response): Future[Unit] = Future {
     val raw =
       s"""HTTP/1.1 ${res.statusCode.code} ${res.statusCode.text}\r
          |${res.headers.mkString("\r\n")}\r
-         |\r
          |${res.body}""".stripMargin
     conn.getOutputStream.write(raw.getBytes)
     conn.close()

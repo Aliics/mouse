@@ -242,7 +242,7 @@ object StatusCode {
   case object VariantAlsoNegotiates extends StatusCode {
     def code = 506
     def text = "Variant also Negotiates"
-  }z
+  }
   case object InsufficientStorage extends StatusCode {
     def code = 507
     def text = "Insufficient Storage"
