@@ -11,7 +11,9 @@ class ServerTest extends AnyFunSuiteLike {
   test("stand up a server") {
     val routes = Routes(
       ("/echo", req => Future.successful(Ok(req.body))),
-      (Get / "/hello", _ => Future.successful(Ok("Hello, World!"))),
+      (Get / "/hello", { req =>
+        Future.successful(Ok(s"""Hello, ${req.params.getOrElse("name", "World!")}!"""))
+      }),
     )
 
     new Server(routes).runBlocking()

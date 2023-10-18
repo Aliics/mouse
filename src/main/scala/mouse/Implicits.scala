@@ -10,7 +10,7 @@ import scala.language.implicitConversions
 import scala.util.Success
 
 object Implicits {
-  implicit def functionToRoute(f: Function[Request, Future[Response]]): Route = (req: Request) => f(req)
+  implicit def partialFunctionToRoute(pf: PartialFunction[Request, Future[Response]]): Route = (req: Request) => pf(req)
 
   implicit def stringToMatchAllPath(s: String): Routes.Path = None -> s
 
