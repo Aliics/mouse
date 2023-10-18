@@ -19,6 +19,36 @@ object Implicits {
     }
   }
 
+  implicit class HeadersEx(headers: Headers) {
+    def contentLength: Option[String] = headers.get(Headers.ContentLength)
+    def accept: Option[String] = headers.get(Headers.Accept)
+    def accessControlAllowCredentials: Option[String] = headers.get(Headers.AccessControlAllowCredentials)
+    def accessControlAllowHeaders: Option[String] = headers.get(Headers.AccessControlAllowHeaders)
+    def accessControlAllowMethods: Option[String] = headers.get(Headers.AccessControlAllowMethods)
+    def accessControlAllowOrigin: Option[String] = headers.get(Headers.AccessControlAllowOrigin)
+    def age: Option[String] = headers.get(Headers.Age)
+    def allow: Option[String] = headers.get(Headers.Allow)
+    def authorization: Option[String] = headers.get(Headers.Authorization)
+    def cacheControl: Option[String] = headers.get(Headers.CacheControl)
+    def connection: Option[String] = headers.get(Headers.Connection)
+    def contentType: Option[String] = headers.get(Headers.ContentType)
+    def cookie: Option[String] = headers.get(Headers.Cookie)
+    def date: Option[String] = headers.get(Headers.Date)
+    def eTag: Option[String] = headers.get(Headers.ETag)
+    def forwarded: Option[String] = headers.get(Headers.Forwarded)
+    def expires: Option[String] = headers.get(Headers.Expires)
+    def from: Option[String] = headers.get(Headers.From)
+    def host: Option[String] = headers.get(Headers.Host)
+    def keepAlive: Option[String] = headers.get(Headers.KeepAlive)
+    def lastModified: Option[String] = headers.get(Headers.LastModified)
+    def location: Option[String] = headers.get(Headers.Location)
+    def origin: Option[String] = headers.get(Headers.Origin)
+    def upgrade: Option[String] = headers.get(Headers.Upgrade)
+    def userAgent: Option[String] = headers.get(Headers.UserAgent)
+    def xForwardedFor: Option[String] = headers.get(Headers.XForwardedFor)
+    def xForwardedHost: Option[String] = headers.get(Headers.XForwardedHost)
+  }
+
   private[mouse] implicit class FutureEx[T](future: Future[T])(implicit ec: ExecutionContext) {
     def timeout(duration: Duration): Future[Option[T]] = {
       val deadline = Instant.now.toEpochMilli + duration.toMillis

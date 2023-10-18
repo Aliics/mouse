@@ -3,7 +3,7 @@ package mouse
 case class Request(
   uri: String,
   method: Method,
-  headers: Map[String, String],
+  headers: Headers,
   body: String,
 )
 
