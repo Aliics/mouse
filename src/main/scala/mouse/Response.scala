@@ -6,7 +6,13 @@ case class Response(
   statusCode: StatusCode,
   headers: Headers,
   body: String,
-)
+) {
+  def serialized: String =
+    s"""HTTP/1.1 ${statusCode.code} ${statusCode.text}\r
+       |${headers.mkString("\r\n")}\r
+       |${body}
+       |""".stripMargin
+}
 
 object Response {
   def apply(statusCode: StatusCode, headers: Headers, body: String): Response = {
