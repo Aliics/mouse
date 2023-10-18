@@ -1,6 +1,6 @@
 package mouse
 
-import Implicits.HeadersEx
+import mouse.Implicits.HeadersEx
 
 case class Response(
   statusCode: StatusCode,

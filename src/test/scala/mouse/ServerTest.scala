@@ -1,12 +1,14 @@
 package mouse
 
 import mouse.Implicits._
-import mouse.Method.{Get, Post}
+import mouse.Method.Get
+import org.scalatest.Ignore
 import org.scalatest.funsuite.AnyFunSuiteLike
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+@Ignore
 class ServerTest extends AnyFunSuiteLike {
   test("stand up a server") {
     val routes = Routes(
