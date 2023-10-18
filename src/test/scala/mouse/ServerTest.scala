@@ -1,10 +1,10 @@
 package mouse
 
+import mouse.Implicits.ServerEx
 import org.scalatest.funsuite.AnyFunSuiteLike
 
-import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
+import scala.concurrent.Future
 
 class ServerTest extends AnyFunSuiteLike {
   test("stand up a server") {
@@ -12,10 +12,6 @@ class ServerTest extends AnyFunSuiteLike {
       ("/echo", req => Future.successful(Response(StatusCode.Ok, req.headers, req.body))),
     )
 
-    val server = new Server(routes)
-
-    server.accept()
-
-    Await.result(server.handle(), Duration.Inf)
+    new Server(routes).runBlocking()
   }
 }
