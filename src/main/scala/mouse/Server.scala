@@ -1,11 +1,8 @@
 package mouse
 
-import mouse.FutureImplicitEx._
-
 import java.io.{BufferedReader, InputStreamReader}
 import java.net.{ServerSocket, Socket}
 import java.util.concurrent.ConcurrentLinkedDeque
-import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 class Server(val routes: Routes, val address: String = ":8080")(implicit private val ec: ExecutionContext) {
@@ -41,18 +38,30 @@ class Server(val routes: Routes, val address: String = ":8080")(implicit private
 
   private def parseRequest(conn: Socket): Future[Request] = {
     val reader = new BufferedReader(new InputStreamReader(conn.getInputStream))
-    def streamRawReq(): Future[String] = {
-      Future(reader.readLine())
-        .timeout(1.millis)
-        .flatMap {
-          case Some(line) => streamRawReq().map(tail => s"$line\n$tail")
-          case None => Future.successful("")
-        }
+    def readRawReq(): Future[String] = Future {
+      def readReqHeading(): String = {
+        val line = reader.readLine()
+        if (line.isBlank) "\n"
+        else s"$line\n${readReqHeading()}"
+      }
+
+      val heading = readReqHeading()
+      val contentLength = heading match {
+        case s"${_}Content-Length: $lengthAndTail" =>
+          lengthAndTail.split("\n").head.toInt
+        case _ =>
+          0
+      }
+
+      val body = new Array[Char](contentLength)
+      reader.read(body, 0, contentLength)
+
+      heading + body.mkString
     }
 
-    streamRawReq().map { rawReq =>
+    readRawReq().map { rawReq =>
       val head :: body = rawReq.split("\n\n", 2).toList
-      val (s"$method $uri $_") :: headers = head.split("\n").toList
+      val s"$method $uri $_" :: headers = head.split("\n").toList
 
       Request(
         uri = uri,
@@ -67,6 +76,7 @@ class Server(val routes: Routes, val address: String = ":8080")(implicit private
     val raw =
       s"""HTTP/1.1 ${res.statusCode.code} ${res.statusCode.text}\r
          |${res.headers.mkString("\r\n")}\r
+         |\r
          |${res.body}""".stripMargin
     conn.getOutputStream.write(raw.getBytes)
     conn.close()
