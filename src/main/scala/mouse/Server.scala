@@ -81,7 +81,7 @@ class Server(val routes: Routes, val address: String = ":8080")(implicit private
     }
   }
 
-  private def writeResponse(conn: Socket, res: Response): Future[Unit] = Future {
+  private def writeResponse(conn: Socket, res: Response) = Future {
     val raw =
       s"""HTTP/1.1 ${res.statusCode.code} ${res.statusCode.text}\r
          |${res.headers.mkString("\r\n")}\r
