@@ -1,7 +1,5 @@
 package mouse
 
-import mouse.Implicits.MethodEx
-
 import java.io.{BufferedReader, InputStreamReader}
 import java.net.{ServerSocket, Socket}
 import java.util.concurrent.ConcurrentLinkedDeque
