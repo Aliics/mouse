@@ -17,12 +17,16 @@ object Routes {
   def apply(routeMappings: (Path, Route)*): Routes = {
     val routes = new Routes
     routes.routesMapping.addAll {
-      routeMappings.flatMap {
-        case (Some(method) -> uri, route) =>
-          List((uri, Map(method -> route)))
-        case (None -> uri, route) =>
-          List((uri, Method.all.map(_ -> route).toMap))
-      }
+      routeMappings
+        .map { case (method -> uri, route) =>
+          (method, if (uri.startsWith("/")) uri else s"/$uri", route)
+        }
+        .flatMap {
+          case (Some(method), uri, route) =>
+            List((uri, Map(method -> route)))
+          case (None, uri, route) =>
+            List((uri, Method.all.map(_ -> route).toMap))
+        }
     }
 
     routes

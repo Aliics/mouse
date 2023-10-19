@@ -2,7 +2,7 @@ package mouse
 
 import mouse.Implicits._
 import mouse.Method.Get
-import mouse.Params.required
+import mouse.Params.{optional, required}
 import org.scalatest.funsuite.AnyFunSuiteLike
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -10,12 +10,29 @@ import scala.concurrent.Future
 
 class ServerTest extends AnyFunSuiteLike {
   test("stand up a server") {
+    val bunnies = List("Ollie", "Mr. Ollie", "Sr. Ollie", "King Oliver I")
+
     val routes = Routes(
-      ("/echo", req => Future.successful(Ok(req.body))),
-      (Get / "/hello", implicit req => Future {
-        val name = required("name")
+      // Simple echo. Just responds with the given body.
+      // Works on all methods, but in the real-world, this should probably just be a POST/PUT.
+      ("echo", req => Future.successful(Ok(req.body))),
+
+      // /hello?name=NAME will greet the name given. "name" is required, so a 400 will be
+      // returned if not given.
+      (Get / "hello", implicit req => Future {
+        val name = required[String]("name")
         Ok(s"""Hello, $name!""")
       }),
+
+      // /bunnies?id=OPTIONAL_ID will respond with a list of bunnies. "id" is optional, so
+      // that must be handled by us. Additionally, it must be Int-parseable.
+      (Get / "bunnies", implicit req => Future {
+        val fetched = optional[Int]("id")
+          .map(i => List(bunnies(i)))
+          .getOrElse(bunnies)
+
+        Ok(fetched.mkString("[", ",", "]"))
+      })
     )
 
     new Server(routes).runBlocking()

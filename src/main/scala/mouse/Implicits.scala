@@ -9,7 +9,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.language.implicitConversions
 import scala.util.Success
 
-object Implicits {
+object Implicits extends Params.FromParamDefaults {
   implicit def partialFunctionToRoute(pf: PartialFunction[Request, Future[Response]]): Route = (req: Request) => pf(req)
 
   implicit def stringToMatchAllPath(s: String): Routes.Path = None -> s
