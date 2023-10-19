@@ -1,13 +1,19 @@
 package mouse
 
+import mouse.Implicits.FutureEx
 import mouse.exceptions.BadRequestException
 
 import java.io.{BufferedReader, InputStreamReader}
 import java.net.{ServerSocket, Socket}
 import java.util.concurrent.ConcurrentLinkedDeque
+import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{ExecutionContext, Future}
 
-class Server(val routes: Routes, val address: String = ":8080")(implicit private val ec: ExecutionContext) {
+class Server(
+  val routes: Routes,
+  val address: String = ":8080",
+  val timeout: Duration = 30.seconds,
+)(implicit private val ec: ExecutionContext) {
   private val server = {
     val port = address.split(":")(1).toInt
     new ServerSocket(port)
@@ -53,6 +59,8 @@ class Server(val routes: Routes, val address: String = ":8080")(implicit private
         else s"$line\n${readReqHeading()}"
       }
 
+      // To obtain the body, we need to know the length.
+      // This is reasonable standard, so we will use the Content-Length header.
       val heading = readReqHeading()
       val contentLength = heading match {
         case s"${_}Content-Length: $lengthAndTail" =>
@@ -71,7 +79,7 @@ class Server(val routes: Routes, val address: String = ":8080")(implicit private
   }
 
   private def invokeRouteHandler(req: Request) = {
-    routes(req.method, req.uri) match {
+    (routes(req.method, req.uri) match {
       case Some(route) =>
         route(req).recover {
           case BadRequestException(message) => BadRequest(message)
@@ -79,7 +87,15 @@ class Server(val routes: Routes, val address: String = ":8080")(implicit private
         }
       case None =>
         Future.successful(NotFound(s"""Could not find route "${req.uri}".\n"""))
-    }
+    }).timeout(timeout) // Handle request for as long as the timeout allows.
+      .map {
+        case Some(value) => value
+        case None => Response(
+          StatusCode.RequestTimeout,
+          Headers(),
+          s"Could not complete request in ${timeout.toString}.",
+        )
+      }
   }
 
   private def writeResponse(conn: Socket, res: Response) = Future {

@@ -7,6 +7,7 @@ import org.scalatest.funsuite.AnyFunSuiteLike
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
 
 class ServerTest extends AnyFunSuiteLike {
   test("stand up a server") {
@@ -32,9 +33,16 @@ class ServerTest extends AnyFunSuiteLike {
           .getOrElse(bunnies)
 
         Ok(fetched.mkString("[", ",", "]"))
-      })
+      }),
+
+      // This route will always timeout because the Server is configured to a 1 second timeout
+      // and the route takes 2 seconds to complete.
+      ("/will-timeout", req => Future {
+        Thread.sleep(2000) // Heavy operation.
+        Ok("Why didn't it timeout??")
+      }),
     )
 
-    new Server(routes).runBlocking()
+    new Server(routes, timeout = 1.second).runBlocking()
   }
 }
