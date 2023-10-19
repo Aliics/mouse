@@ -46,7 +46,7 @@ object StatusCode {
   }
   case object ResetContent extends StatusCode {
     def code = 205
-    def text = "ResetContent"
+    def text = "Reset Content"
   }
   case object PartialContent extends StatusCode {
     def code = 206
@@ -120,7 +120,7 @@ object StatusCode {
   }
   case object MethodNotAllowed extends StatusCode {
     def code = 405
-    def text = "MethodNotAllowed"
+    def text = "Method Not Allowed"
   }
   case object NotAcceptable extends StatusCode {
     def code = 406
@@ -196,7 +196,7 @@ object StatusCode {
   }
   case object UpgradeRequired extends StatusCode {
     def code = 426
-    def text = "UpgradeRequired"
+    def text = "Upgrade Required"
   }
   case object PreconditionRequired extends StatusCode {
     def code = 428
@@ -212,7 +212,7 @@ object StatusCode {
   }
   case object UnavailableForLegalReasons extends StatusCode {
     def code = 451
-    def text = "UnavailableForLegalReasons"
+    def text = "Unavailable For Legal Reasons"
   }
 
   case object InternalServerError extends StatusCode {
@@ -241,7 +241,7 @@ object StatusCode {
   }
   case object VariantAlsoNegotiates extends StatusCode {
     def code = 506
-    def text = "Variant also Negotiates"
+    def text = "Variant Also Negotiates"
   }
   case object InsufficientStorage extends StatusCode {
     def code = 507
