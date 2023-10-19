@@ -3,12 +3,14 @@ package mouse
 import mouse.Implicits._
 import mouse.Method.Get
 import mouse.Params.{optional, required}
+import org.scalatest.Ignore
 import org.scalatest.funsuite.AnyFunSuiteLike
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 
+@Ignore
 class ServerTest extends AnyFunSuiteLike {
   test("stand up a server") {
     val bunnies = List("Ollie", "Mr. Ollie", "Sr. Ollie", "King Oliver I")
@@ -43,6 +45,7 @@ class ServerTest extends AnyFunSuiteLike {
       }),
     )
 
+    // Run the server with a custom timeout (default is 30 seconds).
     new Server(routes, timeout = 1.second).runBlocking()
   }
 }

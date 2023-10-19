@@ -27,8 +27,16 @@ object HelloWorld extends App {
         .getOrElse(bunnies)
 
       Ok(fetched.mkString("[", ",", "]"))
-    })
+    }),
+
+    // This route will always timeout because the Server is configured to a 1 second timeout
+    // and the route takes 2 seconds to complete.
+    ("/will-timeout", req => Future {
+      Thread.sleep(2000) // Heavy operation.
+      Ok("Why didn't it timeout??")
+    }),
   )
 
-  new Server(routes).runBlocking()
+  // Run the server with a custom timeout (default is 30 seconds).
+  new Server(routes, timeout = 1.second).runBlocking()
 }
