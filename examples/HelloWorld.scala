@@ -6,10 +6,10 @@ import scala.concurrent.Future
 
 object HelloWorld extends App {
   val routes = Routes(
-    ("/hello", req => Future.successful(Ok(req.body))),
-    (Get / "/hello", { req =>
-      val name = req.params.getOrElse("name", "World")
-      Future.successful(Ok(s"""Hello, $name!"""))
+    ("/echo", req => Future.successful(Ok(req.body))),
+    (Get / "/hello", implicit req => Future {
+      val name = required("name")
+      Ok(s"""Hello, $name!""")
     }),
   )
 

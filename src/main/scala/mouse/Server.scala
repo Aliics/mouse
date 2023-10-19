@@ -1,5 +1,7 @@
 package mouse
 
+import mouse.exceptions.BadRequestException
+
 import java.io.{BufferedReader, InputStreamReader}
 import java.net.{ServerSocket, Socket}
 import java.util.concurrent.ConcurrentLinkedDeque
@@ -59,13 +61,16 @@ class Server(val routes: Routes, val address: String = ":8080")(implicit private
       heading + body.mkString
     }
 
-    readRawReq().map(RequestParser.parse)
+    readRawReq().map(Request.parse)
   }
 
   private def invokeRouteHandler(req: Request) = {
     routes(req.method, req.uri) match {
       case Some(route) =>
-        route(req)
+        route(req).recover {
+          case BadRequestException(message) => BadRequest(message)
+          case throwable => InternalServerError(throwable.getMessage)
+        }
       case None =>
         Future.successful(NotFound(s"""Could not find route "${req.uri}".\n"""))
     }

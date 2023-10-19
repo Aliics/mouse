@@ -2,10 +2,10 @@ package mouse
 
 import org.scalatest.funspec.AnyFunSpec
 
-class RequestParserTest extends AnyFunSpec {
+class RequestTest extends AnyFunSpec {
   describe("A well-formed request") {
     it("should be able to create a Request if all values are populated") {
-      val request = RequestParser.parse(
+      val request = Request.parse(
         """GET /bunny?name=Ollie HTTP/1.1
           |Content-Length: 6
           |
@@ -22,7 +22,7 @@ class RequestParserTest extends AnyFunSpec {
     }
 
     it("should be able to create a Request with minimal values") {
-      val request = RequestParser.parse("POST /a HTTP/1.1")
+      val request = Request.parse("POST /a HTTP/1.1")
 
       assert(request == Request(
         uri = "/a",
