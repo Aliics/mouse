@@ -15,6 +15,14 @@ object Implicits extends Params.FromParamDefaults {
   implicit def stringToMatchAllPath(s: String): Routes.Path = None -> s
 
   implicit class ServerEx(server: Server) {
+    /**
+     * Effectively an alias for (with an additional blocking mechanism):
+     *
+     * {{{
+     *   server.accept()
+     *   server.handle()
+     * }}}
+     */
     def runBlocking(): Unit = {
       server.accept()
       Await.result(server.handle(), Duration.Inf)

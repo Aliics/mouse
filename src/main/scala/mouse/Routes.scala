@@ -14,6 +14,12 @@ class Routes {
 object Routes {
   type Path = (Option[Method], String)
 
+  /**
+   * Provide pairs of [[Path]] to [[Route]]. These map HTTP requests to specific routes.
+   *
+   * @param routeMappings Pairs of [[Path]] to [[Route]].
+   * @return Routes.
+   */
   def apply(routeMappings: (Path, Route)*): Routes = {
     val routes = new Routes
     routes.routesMapping.addAll {

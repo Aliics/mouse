@@ -2,6 +2,13 @@ package mouse
 
 import mouse.Implicits.HeadersEx
 
+/**
+ * Outbound HTTP Response.
+ *
+ * @param statusCode HTTP Status Code (example: [[Ok]])
+ * @param headers    Map of HTTP Headers.
+ * @param body       A string representing a body.
+ */
 case class Response(
   statusCode: StatusCode,
   headers: Headers,
@@ -15,11 +22,19 @@ case class Response(
 }
 
 object Response {
+  /**
+   * Outbound HTTP Response.
+   *
+   * @param statusCode HTTP Status Code (example: [[Ok]])
+   * @param headers    Map of HTTP Headers.
+   * @param body       A string representing a body.
+   */
   def apply(statusCode: StatusCode, headers: Headers, body: String): Response = {
     val headersWithInferredValues = Map.newBuilder[String, String]
     headersWithInferredValues ++= headers
 
     if (body.nonEmpty && headers.contentLength.isEmpty) {
+      // Add Content-Length to the response from the length of the body.
       headersWithInferredValues.addOne((Headers.ContentLength, body.length.toString))
     }
 

@@ -15,6 +15,9 @@ class Server(val routes: Routes, val address: String = ":8080")(implicit private
 
   private val unhandledConns = new ConcurrentLinkedDeque[Socket]()
 
+  /**
+   * Accept connections from the ServerSocket. Puts them in a deque to be processed later.
+   */
   def accept(): Future[Unit] =
     for {
       conn <- Future(server.accept())
@@ -22,6 +25,9 @@ class Server(val routes: Routes, val address: String = ":8080")(implicit private
       _ <- accept()
     } yield ()
 
+  /**
+   * Handle inbound connections as HTTP requests.
+   */
   def handle(): Future[Unit] = {
     def allUnhandledConns(): List[Socket] =
       if (unhandledConns.isEmpty) List()

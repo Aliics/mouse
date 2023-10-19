@@ -1,5 +1,14 @@
 package mouse
 
+/**
+ * Inbound HTTP Request.
+ *
+ * @param uri     Requested resource.
+ * @param params  Map of query parameters.
+ * @param method  HTTP method (example: [[mouse.Method.Get]]).
+ * @param headers Map of HTTP Headers.
+ * @param body    A string representing a body.
+ */
 case class Request(
   uri: String,
   params: Params,
