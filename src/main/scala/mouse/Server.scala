@@ -6,6 +6,7 @@ import mouse.exceptions.BadRequestException
 import java.io.{BufferedReader, InputStreamReader}
 import java.net.{ServerSocket, Socket}
 import java.util.concurrent.ConcurrentLinkedDeque
+import scala.annotation.tailrec
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -13,6 +14,7 @@ class Server(
   val routes: Routes,
   val address: String = ":8080",
   val timeout: Duration = 30.seconds,
+  val parallelism: Int = 10,
 )(implicit private val ec: ExecutionContext) {
   private val server = {
     val port = address.split(":")(1).toInt
@@ -34,20 +36,22 @@ class Server(
   /**
    * Handle inbound connections as HTTP requests.
    */
-  def handle(): Future[Unit] = {
-    def allUnhandledConns(): List[Socket] =
-      if (unhandledConns.isEmpty) List()
-      else unhandledConns.pop() :: allUnhandledConns()
+  @tailrec final def handle(): Future[Unit] = {
+    def allUnhandledConns(n: Int = parallelism): List[Socket] =
+      if (unhandledConns.isEmpty || n <= 0) List()
+      else unhandledConns.pop() :: allUnhandledConns(n - 1)
 
-    Future
-      .traverse(allUnhandledConns()) { conn =>
-        for {
-          req <- parseRequest(conn)
-          res <- invokeRouteHandler(req)
-          _ <- writeResponse(conn, res)
-        } yield ()
-      }
-      .flatMap(_ => handle())
+    // Connections are handled and not watched.
+    // Processing on batch should not stop another from processing.
+    Future.traverse(allUnhandledConns()) { conn =>
+      for {
+        req <- parseRequest(conn)
+        res <- invokeRouteHandler(req)
+        _ <- writeResponse(conn, res)
+      } yield ()
+    }
+
+    handle()
   }
 
   private def parseRequest(conn: Socket): Future[Request] = {
