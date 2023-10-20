@@ -6,6 +6,17 @@ On my machine, a query to the example `/bunnies` route takes **~6-7ms** using *c
 
 ![Screenshot of fish showing how long it took curl to respond](images/fish-screenshot.png)
 
+# Usage
+
+In your build.sbt:
+```scala
+libraryDependencies ++= Seq(
+  // ...
+  "io.github.aliics" %% "mouse" % "0.1.0",
+  // ...
+)
+```
+
 # Example
 
 Simple little toy example with a few routes.

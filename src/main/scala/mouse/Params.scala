@@ -8,9 +8,9 @@ object Params {
   /**
    * Receive a param by its key when handling a [[Request]].
    *
-   * This is non-optional, and it will throw a [[BadRequestException]] if the param is not on the request.
+   * This is non-optional, and it will throw a [[exceptions.BadRequestException]] if the param is not on the request.
    *
-   * If the given value is malformed, a [[BadRequestException]] will be thrown.
+   * If the given value is malformed, a [[exceptions.BadRequestException]] will be thrown.
    *
    * @param key Query parameter key.
    * @param req [[Request]] in scope. Usually in the context of handling on a [[Route]].
@@ -23,7 +23,7 @@ object Params {
   /**
    * Optionally receive a param by its key when handling a [[Request]].
    *
-   * If the given value is malformed, a [[BadRequestException]] will be thrown.
+   * If the given value is malformed, a [[exceptions.BadRequestException]] will be thrown.
    *
    * @param key Query parameter key.
    * @param req [[Request]] in scope. Usually in the context of handling on a [[Route]].
