@@ -10,6 +10,24 @@ import scala.annotation.tailrec
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+ * Handles all HTTP server tasks like managing connections and routing.
+ *
+ * Here is a small code snippet of how it looks to use [[Server]].
+ * {{{
+ *   val routes = Routes(
+ *     (Get / "hello", _ => Future.successful(Ok("Hello, World!")))
+ *   )
+ *
+ *   Server(routes).runBlocking()
+ * }}}
+ *
+ * @param routes The routes to handle valid requests on.
+ * @param address Address to host on as. ("[address]:port")
+ * @param timeout How long a request has to be fulfilled until a timeout occurs.
+ * @param parallelism How many connections to handle in parallel.
+ * @param ec Context to use for all concurrency.
+ */
 class Server(
   val routes: Routes,
   val address: String = ":8080",
