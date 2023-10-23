@@ -1,7 +1,7 @@
 package mouse
 
 import mouse.Implicits.FutureEx
-import mouse.exceptions.BadRequestException
+import mouse.exceptions._
 
 import java.io.{BufferedReader, InputStreamReader}
 import java.net.{ServerSocket, Socket}
@@ -87,6 +87,8 @@ class Server(
       case Some(route) =>
         route(req).recover {
           case BadRequestException(message) => BadRequest(message)
+          case NotFoundException(message) => NotFound(message)
+          case UnauthorizedException(message) => Unauthorized(message)
           case throwable => InternalServerError(throwable.getMessage)
         }
       case None =>
