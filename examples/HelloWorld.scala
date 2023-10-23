@@ -1,5 +1,6 @@
 import mouse.Implicits._
 import mouse.Method.Get
+import mouse.Params.{optional, required}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
