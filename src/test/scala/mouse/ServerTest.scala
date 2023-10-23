@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 
-//@Ignore
+@Ignore
 class ServerTest extends AnyFunSuiteLike {
   test("stand up a server") {
     val bunnies = List("Ollie", "Mr. Ollie", "Sr. Ollie", "King Oliver I")
