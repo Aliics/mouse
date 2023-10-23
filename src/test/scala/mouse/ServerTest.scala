@@ -2,7 +2,8 @@ package mouse
 
 import mouse.Implicits._
 import mouse.Method.Get
-import mouse.Params.{optional, required}
+import mouse.PathParams.param
+import mouse.QueryParams.{optional, required}
 import org.scalatest.Ignore
 import org.scalatest.funsuite.AnyFunSuiteLike
 
@@ -10,7 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 
-@Ignore
+//@Ignore
 class ServerTest extends AnyFunSuiteLike {
   test("stand up a server") {
     val bunnies = List("Ollie", "Mr. Ollie", "Sr. Ollie", "King Oliver I")
@@ -39,13 +40,22 @@ class ServerTest extends AnyFunSuiteLike {
 
       // This route will always timeout because the Server is configured to a 1 second timeout
       // and the route takes 2 seconds to complete.
-      ("/will-timeout", req => Future {
+      ("/will-timeout", _ => Future {
         Thread.sleep(2000) // Heavy operation.
         Ok("Why didn't it timeout??")
       }),
     )
 
+    // Routes can be concatenated, so these will be added onto our Server routes.
+    val additionalRoutes = Routes(
+      // Path parameters. There must be passed in to match, they are required. Use "param" to access.
+      (Get / "about/:name", implicit req => Future {
+        val name = param[String]("name")
+        Ok(s"$name is cool!")
+      }),
+    )
+
     // Run the server with a custom timeout (default is 30 seconds).
-    new Server(routes, timeout = 1.second).runBlocking()
+    new Server(routes ++ additionalRoutes, timeout = 1.second).runBlocking()
   }
 }

@@ -55,9 +55,15 @@ class RoutesTest extends AnyFunSuiteLike {
     val routes0 = Routes((Get / "simple", _ => Future.successful(Ok("hello"))))
     val routes1 = Routes((Get / "easy", _ => Future.successful(Ok("hi"))))
 
-    val routes = routes0 + routes1
+    val routes = routes0 ++ routes1
 
     assert(routes(Get, "/simple").isDefined)
     assert(routes(Get, "/easy").isDefined)
+  }
+
+  test("path params") {
+    val routes = Routes((Get / "hello/:name", _ => Future.successful(Ok("hello"))))
+
+    assert(routes(Get, "/hello/Ollie").isDefined)
   }
 }

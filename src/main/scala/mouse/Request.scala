@@ -3,29 +3,32 @@ package mouse
 /**
  * Inbound HTTP Request.
  *
- * @param uri     Requested resource.
- * @param params  Map of query parameters.
- * @param method  HTTP method (example: [[mouse.Method.Get]]).
- * @param headers Map of HTTP Headers.
- * @param body    A string representing a body.
+ * @param uri         Requested resource.
+ * @param pathParams  Map of path parameters.
+ * @param queryParams Map of query parameters.
+ * @param method      HTTP method (example: [[mouse.Method.Get]]).
+ * @param headers     Map of HTTP Headers.
+ * @param body        A string representing a body.
  */
 case class Request(
   uri: String,
-  params: Params,
+  pathParams: PathParams,
+  queryParams: QueryParams,
   method: Method,
   headers: Headers,
   body: String,
 )
 
 object Request {
-  private[mouse] def parse(rawReq: String): Request = {
+  private[mouse] def parse(rawReq: String)(implicit routes: Routes): Request = {
     val head :: body = rawReq.split("\n\n", 2).toList
     val s"$method $fullUri $_" :: headers = head.split("\n").toList
     val (uri, params) = parseUri(fullUri)
 
     Request(
       uri = uri,
-      params = params,
+      pathParams = routes.pathParams(uri).getOrElse(PathParams()),
+      queryParams = params,
       method = Method(method),
       headers = headers.map(_.split(": ")).map(x => (x.head, x.last)).toMap,
       body = body.mkString("\n"),

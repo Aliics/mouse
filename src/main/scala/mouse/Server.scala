@@ -22,11 +22,11 @@ import scala.concurrent.{ExecutionContext, Future}
  *   Server(routes).runBlocking()
  * }}}
  *
- * @param routes The routes to handle valid requests on.
- * @param address Address to host on as. ("[address]:port")
- * @param timeout How long a request has to be fulfilled until a timeout occurs.
+ * @param routes      The routes to handle valid requests on.
+ * @param address     Address to host on as. ("[address]:port")
+ * @param timeout     How long a request has to be fulfilled until a timeout occurs.
  * @param parallelism How many connections to handle in parallel.
- * @param ec Context to use for all concurrency.
+ * @param ec          Context to use for all concurrency.
  */
 class Server(
   val routes: Routes,
@@ -73,6 +73,8 @@ class Server(
   }
 
   private def parseRequest(conn: Socket): Future[Request] = {
+    implicit val r: Routes = routes
+
     val reader = new BufferedReader(new InputStreamReader(conn.getInputStream))
     def readRawReq(): Future[String] = Future {
       def readReqHeading(): String = {

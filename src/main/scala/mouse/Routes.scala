@@ -3,12 +3,32 @@ package mouse
 class Routes private(
   private val routesMapping: Map[String, Map[Method, Route]]
 ) {
-  def apply(method: Method, uri: String): Option[Route] = for {
-    routesOnUri <- routesMapping.get(uri)
-    route <- routesOnUri.get(method)
-  } yield route
+  def apply(method: Method, uri: String): Option[Route] = {
+    val matchingByUri = routesMapping
+      .get(uri)
+      .orElse(findMatchingRoute(uri).map(_._2))
 
-  def +(r: Routes): Routes =
+    for {
+      routesOnUri <- matchingByUri
+      route <- routesOnUri.get(method)
+    } yield route
+  }
+
+  def pathParams(uri: String): Option[PathParams] =
+    findMatchingRoute(uri).map { case (routeUri, _) =>
+      (routeUri.split("/") zip uri.split("/"))
+        .collect { case (s":$key", value) => key -> value }
+        .toMap
+    }
+
+  private def findMatchingRoute(uri: String) =
+    routesMapping
+      .find { case (routeUri, _) =>
+        (routeUri.split("/") zip uri.split("/"))
+          .forall { case (a, b) => a.startsWith(":") || a == b }
+      }
+
+  def ++(r: Routes): Routes =
     new Routes(routesMapping ++ r.routesMapping)
 }
 
