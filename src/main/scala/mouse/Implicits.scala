@@ -7,7 +7,7 @@ import scala.annotation.tailrec
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.language.implicitConversions
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 object Implicits extends Params.FromParamDefaults {
   implicit def partialFunctionToRoute(pf: PartialFunction[Request, Future[Response]]): Route = (req: Request) => pf(req)
@@ -72,6 +72,8 @@ object Implicits extends Params.FromParamDefaults {
         future.value match {
           case Some(Success(value)) =>
             Future.successful(Some(value))
+          case Some(Failure(throwable)) =>
+            Future.failed(throwable)
           case None =>
             if (Instant.now.toEpochMilli < deadline) eval()
             else Future.successful(None)
