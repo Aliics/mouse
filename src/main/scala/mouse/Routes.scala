@@ -1,10 +1,8 @@
 package mouse
 
-import scala.collection.mutable
-
-class Routes {
-  private val routesMapping: mutable.Map[String, Map[Method, Route]] = mutable.Map()
-
+class Routes private(
+  private val routesMapping: Map[String, Map[Method, Route]]
+) {
   def apply(method: Method, uri: String): Option[Route] = for {
     routesOnUri <- routesMapping.get(uri)
     route <- routesOnUri.get(method)
@@ -21,8 +19,7 @@ object Routes {
    * @return Routes.
    */
   def apply(routeMappings: (Path, Route)*): Routes = {
-    val routes = new Routes
-    routes.routesMapping.addAll {
+    new Routes(
       routeMappings
         .map { case (method -> uri, route) =>
           (method, if (uri.startsWith("/")) uri else s"/$uri", route)
@@ -33,8 +30,11 @@ object Routes {
           case (None, uri, route) =>
             List((uri, Method.all.map(_ -> route).toMap))
         }
-    }
-
-    routes
+        .foldLeft(Map[String, Map[Method, Route]]()) {
+          case (a, (uri, b)) if a.contains(uri) =>
+            a.updated(uri, a(uri) ++ b)
+          case (a, b) => a + b
+        }
+    )
   }
 }
