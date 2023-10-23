@@ -7,6 +7,9 @@ class Routes private(
     routesOnUri <- routesMapping.get(uri)
     route <- routesOnUri.get(method)
   } yield route
+
+  def +(r: Routes): Routes =
+    new Routes(routesMapping ++ r.routesMapping)
 }
 
 object Routes {

@@ -50,4 +50,14 @@ class RoutesTest extends AnyFunSuiteLike {
     assert(routes(Get, "/overloaded").isDefined)
     assert(routes(Delete, "/overloaded").isDefined)
   }
+
+  test("concatenating routes") {
+    val routes0 = Routes((Get / "simple", _ => Future.successful(Ok("hello"))))
+    val routes1 = Routes((Get / "easy", _ => Future.successful(Ok("hi"))))
+
+    val routes = routes0 + routes1
+
+    assert(routes(Get, "/simple").isDefined)
+    assert(routes(Get, "/easy").isDefined)
+  }
 }
