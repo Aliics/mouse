@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
 
 # Example
 
-Simple little toy example with a few routes.
+A toy example showcasing various features `mouse` has and how to use them. These are very simple examples, but they
+should be a good place start.
 
 ```scala
 import mouse.Implicits._
@@ -65,8 +66,9 @@ object HelloWorld extends App {
 
   // Routes can be concatenated, so these will be added onto our Server routes.
   val additionalRoutes = Routes(
-    // Path parameters. There must be passed in to match, they are required. Use "param" to access.
-    (Get / "about/:name", implicit req => Future {
+    // This shows two need dsl features, path joining with "/" and path parameters.
+    // Path params must be provided if the route uses them, so there is no optional version of the "param" function.
+    (Get / "about" / ":name", implicit req => Future {
       val name = param[String]("name")
       Ok(s"$name is cool!")
     }),

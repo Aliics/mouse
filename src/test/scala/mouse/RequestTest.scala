@@ -1,6 +1,6 @@
 package mouse
 
-import mouse.Implicits.MethodEx
+import mouse.Implicits._
 import mouse.Method.Post
 import org.scalatest.funspec.AnyFunSpec
 
@@ -49,6 +49,23 @@ class RequestTest extends AnyFunSpec {
       assert(req == Request(
         uri = "/test/123",
         pathParams = Map("id" -> "123"),
+        queryParams = Map(),
+        method = Method.Post,
+        headers = Map(),
+        body = "",
+      ))
+    }
+  }
+
+  describe("Request with missing data") {
+    it("should require path params to be present") {
+      val routes: Routes = Routes((Post / "test/:id", _ => Future.successful(Ok("hi"))))
+
+      val req = Request.parse("POST /test HTTP/1.1")(routes)
+
+      assert(req == Request(
+        uri = "/test",
+        pathParams = Map(),
         queryParams = Map(),
         method = Method.Post,
         headers = Map(),

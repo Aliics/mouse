@@ -66,4 +66,10 @@ class RoutesTest extends AnyFunSuiteLike {
 
     assert(routes(Get, "/hello/Ollie").isDefined)
   }
+
+  test("missing param") {
+    val routes = Routes((Get / "hello/:name", _ => Future.successful(Ok("hello"))))
+
+    assert(routes(Get, "/hello").isEmpty)
+  }
 }

@@ -24,8 +24,11 @@ class Routes private(
   private def findMatchingRoute(uri: String) =
     routesMapping
       .find { case (routeUri, _) =>
-        (routeUri.split("/") zip uri.split("/"))
-          .forall { case (a, b) => a.startsWith(":") || a == b }
+        val hasSameDepth = routeUri.count(_ == '/') == uri.count(_ == '/')
+        val allPartsMatch =
+          (routeUri.split("/") zip uri.split("/"))
+            .forall { case (a, b) => a.startsWith(":") || a == b }
+        hasSameDepth && allPartsMatch
       }
 
   def ++(r: Routes): Routes =
@@ -33,7 +36,9 @@ class Routes private(
 }
 
 object Routes {
-  type Path = (Option[Method], String)
+  case class Path(method: Option[Method], uri: String) {
+    def /(sub: String): Path = copy(uri = s"$uri/$sub")
+  }
 
   /**
    * Provide pairs of [[Path]] to [[Route]]. These map HTTP requests to specific routes.
@@ -44,7 +49,7 @@ object Routes {
   def apply(routeMappings: (Path, Route)*): Routes = {
     new Routes(
       routeMappings
-        .map { case (method -> uri, route) =>
+        .map { case (Path(method, uri), route) =>
           (method, if (uri.startsWith("/")) uri else s"/$uri", route)
         }
         .flatMap {

@@ -12,7 +12,8 @@ import scala.util.{Failure, Success}
 object Implicits extends FromParamDefaults {
   implicit def partialFunctionToRoute(pf: PartialFunction[Request, Future[Response]]): Route = (req: Request) => pf(req)
 
-  implicit def stringToMatchAllPath(s: String): Routes.Path = None -> s
+  implicit def stringToMatchAllPath(s: String): Routes.Path = Path(None, s)
+  implicit def methodToPath(m: Method): Routes.Path = Path(Some(m), "")
 
   implicit class ServerEx(server: Server) {
     /**
@@ -27,10 +28,6 @@ object Implicits extends FromParamDefaults {
       server.accept()
       Await.result(server.handle(), Duration.Inf)
     }
-  }
-
-  implicit class MethodEx(method: Method) {
-    def /(uri: String): Path = Some(method) -> uri
   }
 
   implicit class HeadersEx(headers: Headers) {
