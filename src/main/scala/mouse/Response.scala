@@ -18,8 +18,7 @@ case class Response(
     s"""HTTP/1.1 ${statusCode.code} ${statusCode.text}\r
        |${headers.map(h => s"${h._1}: ${h._2}").mkString("\r\n")}\r
        |\r
-       |${body}
-       |""".stripMargin
+       |$body""".stripMargin
 }
 
 object Response {

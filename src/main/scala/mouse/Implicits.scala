@@ -4,7 +4,7 @@ import mouse.Routes.Path
 
 import java.time.Instant
 import scala.annotation.tailrec
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.language.implicitConversions
 import scala.util.{Failure, Success}
@@ -77,7 +77,7 @@ object Implicits extends FromParamDefaults {
         }
       }
 
-      eval()
+      Future(eval()).flatten
     }
   }
 }

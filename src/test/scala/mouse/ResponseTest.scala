@@ -18,7 +18,6 @@ class ResponseTest extends AnyFunSuiteLike {
         |Content-Length: 13\r
         |Content-Type: plain/text\r
         |\r
-        |Hello, Ollie!
-        |""".stripMargin)
+        |Hello, Ollie!""".stripMargin)
   }
 }
