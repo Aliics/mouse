@@ -2,9 +2,10 @@
 
 Small, simple, minimal HTTP server library with no dependencies.
 Since it isn't doing too much in the background, it should also be pretty darn fast.
-On my machine, a query to the example `/bunnies` route takes **~6-7ms** using *curl*.
+On my machine, a query to the example `/bunnies` route takes **~15ms** using *curl*, which is on par with
+ASP.NET and Express, if not a little faster.
 
-![Screenshot of fish showing how long it took curl to respond](images/fish-screenshot.png)
+![Screenshot of bash showing how long it took curl to respond](images/bash-screenshot.png)
 
 # Usage
 
