@@ -16,6 +16,12 @@ case class Request(
 )
 
 object Request:
+  /**
+   * Parse an HTTP Request from an [[InputStream]].
+   *
+   * @param inputStream UTF-8 character input stream.
+   * @return Future of either a [[ParseError]] or the parsed [[Request]].
+   */
   def apply(inputStream: InputStream)(using ExecutionContext): Future[Either[ParseError, Request]] =
     /**
      * Recursively searches for the needle to occur when reading from [[inputStream]]. When the needle is found, reading
@@ -31,7 +37,7 @@ object Request:
       if c == -1 then acc // Exhausted input stream data.
       else
         val haystack = acc + c.toChar
-        if haystack `endsWith` needle then haystack // We found our result!
+        if haystack `endsWith` needle then haystack dropRight needle.length // We found our result!
         else readUntil(needle, haystack) // We haven't found our needle yet, keep searching.
 
     Future:
