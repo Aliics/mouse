@@ -1,8 +1,9 @@
 package mouse
 
+import mouse.errors.ParseError
 import org.scalatest.funsuite.AnyFunSuiteLike
 
-import java.io.{ByteArrayInputStream, InputStream}
+import java.io.ByteArrayInputStream
 import java.net.URI
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -10,14 +11,27 @@ import scala.concurrent.duration.Duration
 
 class RequestTest extends AnyFunSuiteLike:
   test("standard GET request"):
-    val request = "GET / HTTP/1.1\r\nContent-Type: plain/text\r\n\r\n"
+    val Right(response) = parseRequest("GET / HTTP/1.1\r\nContent-Type: plain/text\r\n\r\n"): @unchecked
 
-    val response = Await.result(Request(new ByteArrayInputStream(request.getBytes)), Duration.Inf)
+    assert(response.method == Method.Get)
+    assert(response.uri == URI.create("/"))
+    assert(response.version == Version(1, 1))
+    assert(response.headers == Map("Content-Type" -> "plain/text"))
 
-    assert(response == Right(Request(
-      method = Method.Get,
-      uri = URI `create` "/",
-      version = Version(1, 1),
-      headers = Map.empty,
-      body = InputStream.nullInputStream,
-    )))
+  test("standard POST request"):
+    val Right(response) = parseRequest(
+      "POST /create HTTP/1.1\r\nContent-Type: application/json\r\n\r\n{\"foo\":\"bar\"}",
+    ): @unchecked
+
+    assert(response.method == Method.Post)
+    assert(response.uri == URI.create("/create"))
+    assert(response.version == Version(1, 1))
+    assert(response.headers == Map("Content-Type" -> "application/json"))
+
+  /**
+   * Wrap [[Request.apply()]] function call and pass [[raw]] in as an immediately evaluated input stream.
+   * @param raw Raw input for the [[Request]].
+   * @return The parsing result.
+   */
+  def parseRequest(raw: String): Either[ParseError, Request] =
+    Await.result(Request(new ByteArrayInputStream(raw.getBytes)), Duration.Inf)

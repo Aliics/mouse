@@ -40,15 +40,29 @@ object Request:
         if haystack `endsWith` needle then haystack dropRight needle.length // We found our result!
         else readUntil(needle, haystack) // We haven't found our needle yet, keep searching.
 
+    /**
+     * Recursively read from [[inputStream]] until there are no more header lines.
+     * @return Map of header key-value pairs.
+     */
+    def parseHeaders: Either[ParseError, Map[String, String]] =
+      readUntil("\r\n") match
+        case s"$k: $v" => parseHeaders.map(Map(k -> v) ++ _) // Standard header line.
+        case "" => Right(Map.empty) // Nothing was on the same line.
+        case s => Left(ParseError(s"Invalid header format: $s"))
+
     Future:
       for
         method <- Method(readUntil(" "))
+
+        // "create" could throw. Wrap exceptions as a Left[ParseError].
         uri <- tryToEither(URI `create` readUntil(" "), ParseError.apply)
+
         version <- Version(readUntil("\r\n"))
+        headers <- parseHeaders
       yield Request(
         method = method,
         uri = uri,
         version = version,
-        headers = Map.empty,
+        headers = headers,
         body = InputStream.nullInputStream,
       )
