@@ -3,11 +3,12 @@ package mouse
 import mouse.errors.ParseError
 import org.scalatest.funsuite.AnyFunSuiteLike
 
-import java.io.ByteArrayInputStream
+import java.io.{BufferedInputStream, ByteArrayInputStream, StringReader}
 import java.net.URI
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
+import scala.io.Source
 
 class RequestTest extends AnyFunSuiteLike:
   test("standard GET request"):
@@ -23,10 +24,12 @@ class RequestTest extends AnyFunSuiteLike:
       "POST /create HTTP/1.1\r\nContent-Type: application/json\r\n\r\n{\"foo\":\"bar\"}",
     ): @unchecked
 
+    val body = Source.fromInputStream(response.body).mkString
     assert(response.method == Method.Post)
     assert(response.uri == URI.create("/create"))
     assert(response.version == Version(1, 1))
     assert(response.headers == Map("Content-Type" -> "application/json"))
+    assert(body == """{"foo":"bar"}""")
 
   /**
    * Wrap [[Request.apply()]] function call and pass [[raw]] in as an immediately evaluated input stream.

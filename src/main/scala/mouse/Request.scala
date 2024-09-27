@@ -64,5 +64,5 @@ object Request:
         uri = uri,
         version = version,
         headers = headers,
-        body = InputStream.nullInputStream,
+        body = inputStream,
       )
