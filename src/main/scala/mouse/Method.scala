@@ -10,6 +10,11 @@ enum Method:
   case Put
 
 object Method:
+  /**
+   * Get method from a [[String]]. Case-sensitive.
+   * @param s Input string (e.g. GET)
+   * @return The corresponding [[Method]].
+   */
   def apply(s: String): Either[ParseError, Method] =
     s match
       case "DELETE" => Right(Delete)

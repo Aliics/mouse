@@ -5,6 +5,11 @@ import mouse.errors.ParseError
 case class Version(major: Int, minor: Int)
 
 object Version:
+  /**
+   * Parse HTTP version from a [[String]]. Format is HTTP/$major.$major.
+   * @param s The HTTP Version string.
+   * @return The [[Version]] or parsing error message.
+   */
   def apply(s: String): Either[ParseError, Version] =
     s match
       case s"HTTP/$mj.$mn" =>
