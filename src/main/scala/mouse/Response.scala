@@ -27,3 +27,11 @@ object Response:
       headers = headers,
       body = stringToStream(body),
     )
+
+  def NotFound(headers: Map[String, String] = Map.empty, body: String = "")(using req: Request): Response =
+    Response(
+      version = req.version,
+      status = Status.NotFound,
+      headers = headers,
+      body = stringToStream(body),
+    )
