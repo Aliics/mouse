@@ -18,3 +18,12 @@ case class Response(
     val stream = ByteArrayOutputStream()
     writeToStream(stream)
     stream.toString
+
+object Response:
+  def Ok(headers: Map[String, String] = Map.empty, body: String = "")(using req: Request): Response =
+    Response(
+      version = req.version,
+      status = Status.Ok,
+      headers = headers,
+      body = stringToStream(body),
+    )

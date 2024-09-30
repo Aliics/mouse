@@ -3,7 +3,6 @@ package mouse
 import mouse.errors.ParseError
 import org.scalatest.funsuite.AnyFunSuiteLike
 
-import java.io.ByteArrayInputStream
 import java.net.URI
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -37,15 +36,16 @@ class RequestTest extends AnyFunSuiteLike:
       uri = URI `create` "/hello",
       version = Version(1, 1),
       headers = Map("Content-Type" -> "application/json"),
-      body = ByteArrayInputStream("{}".getBytes),
+      body = stringToStream("{}"),
     )
 
     assert(request.toString == "GET /hello HTTP/1.1\r\nContent-Type: application/json\r\n\r\n{}")
 
   /**
    * Wrap [[Request.apply()]] function call and pass [[raw]] in as an immediately evaluated input stream.
+   *
    * @param raw Raw input for the [[Request]].
    * @return The parsing result.
    */
   def parseRequest(raw: String): Either[ParseError, Request] =
-    Await.result(Request(ByteArrayInputStream(raw.getBytes)), Duration.Inf)
+    Await.result(Request(stringToStream(raw)), Duration.Inf)

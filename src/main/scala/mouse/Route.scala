@@ -4,6 +4,8 @@ import java.net.URI
 import scala.concurrent.Future
 
 case class Route(
-  matcher: (Method, URI) => Boolean,
+  matcher: RouteMatcher,
   handler: Request => Future[Response],
 )
+
+type RouteMatcher = (Method, URI) => Boolean 

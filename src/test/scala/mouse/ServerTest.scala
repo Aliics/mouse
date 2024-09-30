@@ -1,27 +1,18 @@
 package mouse
 
-import mouse.Status.Ok
+import org.scalatest.Ignore
 import org.scalatest.funsuite.AnyFunSuiteLike
 
-import java.io.ByteArrayInputStream
-import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
-
+@Ignore
 class ServerTest extends AnyFunSuiteLike:
-  test("foo"):
+  test("test routes"):
     Await.result(Server(
       Route(
-        matcher = {
-          case (Method.Get, _) => true
-          case _ => false
-        },
-        handler = req => Future(Response(
-          version = req.version,
-          status = Ok,
-          headers = Map("Content-Type" -> "application/json"),
-          body = ByteArrayInputStream("{}".getBytes),
-        ))
+        matcher = Method.Get / "hello" / "friend",
+        handler = implicit req => Future(Response.Ok(body = "{}"))
       )
     ).run(port = 8080), Duration.Inf)
