@@ -3,7 +3,7 @@ package mouse
 import mouse.errors.ParseError
 import org.slf4j.Logger
 
-import java.net.{ServerSocket, Socket}
+import java.net.{ServerSocket, Socket, URI}
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -13,23 +13,24 @@ import scala.util.{Failure, Success}
  *
  * To actually to running the server, invoke the [[run]] method with the port you want to listen on.
  *
- *   {{{
+ * {{{
  *     Server(
  *       routes(
  *         Method.Get / "hello" / "world" -> greetWorld,
  *       ) *
  *     ).runBlocking(port = 8080)
- *   }}}
+ * }}}
  *
  * @param routes Request handlers bound to specified endpoints.
  * @param logger A logger implementation is required, this is for important debugging information.
- * @param x$3 To handle everything asynchronously, an [[ExecutionContext]] must be provided.
+ * @param x$3    To handle everything asynchronously, an [[ExecutionContext]] must be provided.
  */
 class Server(routes: Route*)(using logger: Logger)(using ExecutionContext):
   /**
    * Wraps the [[run]] method using [[Await]].
    * This is the method that most servers will want to use.
    * Both exist to allow for multiple server bindings and control.
+   *
    * @param port Socket port to bind.
    */
   def runBlocking(port: Int): Unit =
@@ -64,7 +65,11 @@ class Server(routes: Route*)(using logger: Logger)(using ExecutionContext):
         given Request = req
 
         for
-          route <- Future(routes.find(_.matcher(req.method, req.uri)))
+          route <- Future:
+            routes.find(_.matcher(
+              req.method,
+              URI `create` req.uri.getPath,
+            ))
           resp <- route.fold
             // No route was found. 404.
               (Future(Response.NotFound()))

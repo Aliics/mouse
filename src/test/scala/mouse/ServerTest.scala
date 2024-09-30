@@ -14,8 +14,9 @@ class ServerTest extends AnyFunSuiteLike:
     def greetWorld(using Request) = Future:
       Response.Ok(body = "Hello, World!")
 
-    def greetFriend(using req: Request) = Future:
-      Response.Ok(body = "Hello, Friend!")
+    def greetFriend(using Request) = Future:
+      val name = queryParam("name", or = "Friend")
+      Response.Ok(body = s"Hello, $name!")
 
     Server(
       routes(
