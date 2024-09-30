@@ -6,7 +6,6 @@ import java.io.InputStream
 import java.net.URI
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
-import scala.io.Source
 
 case class Request(
   method: Method,
@@ -16,12 +15,11 @@ case class Request(
   body: InputStream,
 ):
   override def toString: String =
-    val statusLine = s"$method $uri $version"
-    val headerLines = headers.map((k, v) => s"$k: $v").toList
-    val bodyLines = List("", Source.fromInputStream(body).mkString)
-
-    // Join it all together with CRLF.
-    (statusLine :: headerLines ++ bodyLines).mkString("\r\n")
+    serializeContent(
+      statusLine = s"$method $uri $version",
+      headers = headers,
+      bodyStream = body,
+    )
 
 object Request:
   /**
