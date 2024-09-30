@@ -6,6 +6,7 @@ import java.io.InputStream
 import java.net.URI
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
+import scala.io.Source
 
 case class Request(
   method: Method,
@@ -13,7 +14,14 @@ case class Request(
   version: Version,
   headers: Map[String, String],
   body: InputStream,
-)
+):
+  override def toString: String =
+    val statusLine = s"$method $uri $version"
+    val headerLines = headers.map((k, v) => s"$k: $v").toList
+    val bodyLines = List("", Source.fromInputStream(body).mkString)
+
+    // Join it all together with CRLF.
+    (statusLine :: headerLines ++ bodyLines).mkString("\r\n")
 
 object Request:
   /**
@@ -28,7 +36,7 @@ object Request:
      * stops. If we exhaust all the data from the stream, we simply stop reading.
      *
      * @param needle The string to look for from the [[inputStream]].
-     * @param acc Accumulating string from the [[inputStream]].
+     * @param acc    Accumulating string from the [[inputStream]].
      * @return [[acc]]
      */
     @tailrec
@@ -42,6 +50,7 @@ object Request:
 
     /**
      * Recursively read from [[inputStream]] until there are no more header lines.
+     *
      * @return Map of header key-value pairs.
      */
     def parseHeaders: Either[ParseError, Map[String, String]] =

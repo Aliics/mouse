@@ -31,6 +31,20 @@ class RequestTest extends AnyFunSuiteLike:
     assert(response.headers == Map("Content-Type" -> "application/json"))
     assert(body == """{"foo":"bar"}""")
 
+  test("serialize request"):
+    val request = Request(
+      method = Method.Get,
+      uri = URI `create` "/hello",
+      version = Version(1, 1),
+      headers = Map("Content-Type" -> "application/json"),
+      body = new ByteArrayInputStream("{}".getBytes),
+    )
+
+    val serialized = request.toString
+
+    assert(serialized == "GET /hello HTTP/1.1\r\nContent-Type: application/json\r\n\r\n{}")
+
+
   /**
    * Wrap [[Request.apply()]] function call and pass [[raw]] in as an immediately evaluated input stream.
    * @param raw Raw input for the [[Request]].

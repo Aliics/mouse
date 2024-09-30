@@ -2,7 +2,8 @@ package mouse
 
 import mouse.errors.ParseError
 
-case class Version(major: Int, minor: Int)
+case class Version(major: Int, minor: Int):
+  override def toString: String = s"HTTP/$major.$minor"
 
 object Version:
   /**
