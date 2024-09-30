@@ -1,18 +1,25 @@
 package mouse
 
-import org.scalatest.Ignore
 import org.scalatest.funsuite.AnyFunSuiteLike
+import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 
-@Ignore
+//@Ignore
 class ServerTest extends AnyFunSuiteLike:
   test("test routes"):
-    Await.result(Server(
-      Route(
-        matcher = Method.Get / "hello" / "friend",
-        handler = implicit req => Future(Response.Ok(body = "{}"))
-      )
-    ).run(port = 8080), Duration.Inf)
+    given Logger = LoggerFactory.getLogger("ServerTest")
+
+    def greetWorld(using Request) = Future:
+      Response.Ok(body = "Hello, World!")
+
+    def greetFriend(using req: Request) = Future:
+      Response.Ok(body = "Hello, Friend!")
+
+    Server(
+      routes(
+        Method.Get / "hello" / "world" -> greetWorld,
+        Method.Get / "hello" / "friend" -> greetFriend,
+      ) *
+    ).runBlocking(port = 8080)

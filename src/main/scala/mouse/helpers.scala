@@ -1,6 +1,16 @@
 package mouse
 
 import java.io.ByteArrayInputStream
+import scala.concurrent.Future
+
+def routes(routePairs: (RouteMatcher, Request ?=> Future[Response])*) =
+  routePairs.map: x =>
+    Route(
+      x._1,
+      r =>
+        given Request = r
+        x._2
+    )
 
 private[mouse] def tryToEither[L, R](f: => R, l: String => L): Either[L, R] =
   try

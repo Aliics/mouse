@@ -35,3 +35,11 @@ object Response:
       headers = headers,
       body = stringToStream(body),
     )
+
+  def InternalServerError(headers: Map[String, String] = Map.empty, body: String = "")(using req: Request): Response =
+    Response(
+      version = req.version,
+      status = Status.InternalServerError,
+      headers = headers,
+      body = stringToStream(body),
+    )
