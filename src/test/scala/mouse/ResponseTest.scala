@@ -13,6 +13,4 @@ class ResponseTest extends AnyFunSuiteLike:
       body = new ByteArrayInputStream("{}".getBytes),
     )
 
-    val serialized = response.toString
-
-    assert(serialized == "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n{}")
+    assert(response.toString == "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n{}")

@@ -2,7 +2,7 @@ package mouse
 
 import mouse.errors.ParseError
 
-import java.io.InputStream
+import java.io.{ByteArrayOutputStream, InputStream, OutputStream}
 import java.net.URI
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
@@ -14,12 +14,16 @@ case class Request(
   headers: Map[String, String],
   body: InputStream,
 ):
+  def writeToStream(outputStream: OutputStream): Unit =
+    outputStream.write(s"$method $uri $version\r\n".getBytes)
+    outputStream.write(serializeHeaders(headers))
+    outputStream.write("\r\n\r\n".getBytes)
+    body.transferTo(outputStream)
+
   override def toString: String =
-    serializeContent(
-      statusLine = s"$method $uri $version",
-      headers = headers,
-      bodyStream = body,
-    )
+    val stream = ByteArrayOutputStream()
+    writeToStream(stream)
+    stream.toString
 
 object Request:
   /**

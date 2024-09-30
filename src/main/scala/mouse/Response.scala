@@ -1,6 +1,6 @@
 package mouse
 
-import java.io.InputStream
+import java.io.{ByteArrayOutputStream, InputStream, OutputStream}
 
 case class Response(
   version: Version,
@@ -8,9 +8,13 @@ case class Response(
   headers: Map[String, String],
   body: InputStream,
 ):
+  def writeToStream(outputStream: OutputStream): Unit =
+    outputStream.write(s"$version $status\r\n".getBytes)
+    outputStream.write(serializeHeaders(headers))
+    outputStream.write("\r\n\r\n".getBytes)
+    body.transferTo(outputStream)
+
   override def toString: String =
-    serializeContent(
-      statusLine = s"$version $status",
-      headers = headers,
-      bodyStream = body,
-    )
+    val stream = ByteArrayOutputStream()
+    writeToStream(stream)
+    stream.toString
