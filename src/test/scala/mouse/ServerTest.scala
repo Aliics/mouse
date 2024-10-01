@@ -10,7 +10,7 @@ import scala.concurrent.Future
 //@Ignore
 class ServerTest extends AnyFunSuiteLike:
   test("test routes"):
-    lazy val RouteName = "name"
+    lazy val NameParam = "name"
 
     given Logger = LoggerFactory.getLogger("ServerTest")
 
@@ -18,12 +18,12 @@ class ServerTest extends AnyFunSuiteLike:
       Response.Ok(body = "Hello, World!")
 
     def greetFriend(using Request) = Future:
-      val name = queryParam("fullName") getOrElse routeParam(RouteName)
+      val name = queryParam("fullName") getOrElse routeParam(NameParam)
       Response.Ok(body = s"Hello, $name!")
 
     Server(
       routes(
         Method.Get / "hello" / "world" -> greetWorld,
-        Method.Get / "hello" / RouteParam(RouteName) -> greetFriend,
+        Method.Get / "hello" / RouteParam(NameParam) -> greetFriend,
       ) *
     ).runBlocking(port = 8080)

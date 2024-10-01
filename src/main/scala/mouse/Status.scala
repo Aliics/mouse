@@ -1,5 +1,7 @@
 package mouse
 
+import mouse.errors.ParseError
+
 enum Status(code: Int):
   case Continue extends Status(100)
   case SwitchingProtocols extends Status(101)
@@ -130,3 +132,14 @@ enum Status(code: Int):
         case NotExtended => "Not Extended"
         case NetworkAuthenticationRequired => "Network Authentication Required"
     }"
+
+object Status:
+  /**
+   * Parse an HTTP Status string.
+   * @param s Status code (e.g. 200 OK)
+   * @return [[Status]] or [[ParseError]] if malformed.
+   */
+  def apply(s: String): Either[ParseError, Status] =
+    Status.values.find(_.toString == s) match
+      case Some(status) => Right(status)
+      case None => Left(ParseError(s"Invalid status: $s"))

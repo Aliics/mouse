@@ -1,6 +1,10 @@
 package mouse
 
+import mouse.errors.ParseError
+import mouse.internal.InputParser
+
 import java.io.{ByteArrayOutputStream, InputStream, OutputStream}
+import scala.concurrent.{ExecutionContext, Future}
 
 case class Response(
   version: Version,
@@ -21,6 +25,26 @@ case class Response(
     stream.toString
 
 object Response:
+  /**
+   * Parse an HTTP Response from an [[InputStream]].
+   *
+   * @param inputStream UTF-8 character input stream.
+   * @return Future of either a [[ParseError]] or the parsed [[Response]].
+   */
+  def apply(inputStream: InputStream)(using ExecutionContext): Future[Either[ParseError, Response]] = Future:
+    val parser = InputParser(inputStream)
+
+    for
+      version <- Version(parser `readUntil` " ")
+      status <- Status(parser `readUntil` "\r\n")
+      headers <- parser.parseHeaders
+    yield Response(
+      version = version,
+      status = status,
+      headers = headers,
+      body = inputStream,
+    )
+
   inline def Continue(headers: Map[String, String] = Map.empty, body: String = "")(using Request): Response =
     mk(Status.Continue, headers, body)
   inline def SwitchingProtocols(headers: Map[String, String] = Map.empty, body: String = "")(using Request): Response =
