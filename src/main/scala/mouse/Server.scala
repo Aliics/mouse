@@ -3,7 +3,7 @@ package mouse
 import mouse.errors.ParseError
 import org.slf4j.Logger
 
-import java.net.{ServerSocket, Socket, URI}
+import java.net.{ServerSocket, Socket}
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -14,11 +14,11 @@ import scala.util.{Failure, Success}
  * To actually to running the server, invoke the [[run]] method with the port you want to listen on.
  *
  * {{{
- *     Server(
- *       routes(
- *         Method.Get / "hello" / "world" -> greetWorld,
- *       ) *
- *     ).runBlocking(port = 8080)
+ *   Server(
+ *     routes(
+ *       Method.Get / "hello" / "world" -> greetWorld,
+ *     ) *
+ *   ).runBlocking(port = 8080)
  * }}}
  *
  * @param routes Request handlers bound to specified endpoints.
@@ -65,16 +65,13 @@ class Server(routes: Route*)(using logger: Logger)(using ExecutionContext):
         given Request = req
 
         for
-          route <- Future:
-            routes.find(_.matcher(
-              req.method,
-              URI `create` req.uri.getPath,
-            ))
+          route <- Future(routes.find(_.matcher(req)))
           resp <- route.fold
             // No route was found. 404.
               (Future(Response.NotFound()))
             // Pass the request onto the handler. We found the route!
-              (_.handler(req).transformWith:
+            // Let's also smuggle the route onto the request for more context! :)
+              (_.handler(req.copy(route = route)).transformWith:
                 case Success(r) => Future(r)
                 case Failure(e) => Future:
                   // Log the error and respond with a 500, so the caller knows something went awry.

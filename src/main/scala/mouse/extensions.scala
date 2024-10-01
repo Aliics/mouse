@@ -1,15 +1,35 @@
 package mouse
 
-import java.net.URI
 import scala.annotation.targetName
 
-extension (method: Method)
-  @targetName("join")
-  def /(uri: String): RouteMatcher = (m, u) =>
-    m == method && u.toString.stripPrefix("/") == uri
+extension (m: Method)
+  @targetName("andMethod")
+  def &(m1: Method): RouteMatcher =
+    RouteMatcher(
+      allowedMethods = Seq(m, m1),
+      routeParts = Nil,
+    )
 
-extension (method: RouteMatcher)
   @targetName("join")
-  def /(uri: String): RouteMatcher = (m, u) =>
-    val us = u.toString
-    method(m, URI.create(us dropRight uri.length + 1)) && (us `endsWith` uri)
+  def /(p: RoutePart): RouteMatcher =
+    RouteMatcher(
+      allowedMethods = Seq(m),
+      routeParts = Seq(p),
+    )
+
+extension (ms: Seq[Method])
+  @targetName("join")
+  def /(p: RoutePart): RouteMatcher =
+    RouteMatcher(
+      allowedMethods = ms,
+      routeParts = Seq(p),
+    )
+
+extension (rm: RouteMatcher)
+  @targetName("andMethod")
+  def &(m: Method): RouteMatcher =
+    rm.copy(allowedMethods = rm.allowedMethods :+ m)
+
+  @targetName("join")
+  def /(p: RoutePart): RouteMatcher =
+    rm.copy(routeParts = rm.routeParts :+ p)

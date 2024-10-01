@@ -13,6 +13,11 @@ case class Request(
   version: Version,
   headers: Map[String, String],
   body: InputStream,
+
+  /**
+   * The route the request is now being used on. This is used for route parameters, more or less.
+   */
+  private[mouse] val route: Option[Route] = None,
 ):
   def writeToStream(outputStream: OutputStream): Unit =
     outputStream.write(s"$method $uri $version\r\n".getBytes)

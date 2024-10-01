@@ -1,5 +1,7 @@
 package mouse
 
+import mouse.errors.UnknownParamNameError
+
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -38,3 +40,19 @@ def queryParam(key: String)(using req: Request): Option[String] =
         case s"$k=$v" if k == key => v // Only match if the key is strictly matched.
       .map(URLDecoder.decode(_, StandardCharsets.UTF_8))
   yield v
+
+/**
+ * Extract a route param from the [[Request]]'s [[URI]].
+ * This needs to be defined on the [[Route]], otherwise it will throw.
+ * @param key The [[RouteParam]] name.
+ * @param req [[Request]]
+ * @return The given value on the [[Request]].
+ */
+def routeParam(key: String)(using req: Request): String =
+  // Using the route now provided on the request, we can pull
+  val idx = req.route.get.matcher.routeParts.indexWhere:
+    case RouteParam(n) => n == key
+    case _ => false
+
+  if idx == -1 then throw UnknownParamNameError(key) // That's your own dang fault!
+  else uriParts(req)(idx)

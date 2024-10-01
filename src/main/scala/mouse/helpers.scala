@@ -23,3 +23,6 @@ private[mouse] def serializeHeaders(headers: Map[String, String]) =
 
 private[mouse] def stringToStream(s: String) =
   ByteArrayInputStream(s.to(LazyList).map(_.toByte).toArray)
+
+private[mouse] def uriParts(req: Request) =
+  req.uri.getPath.stripPrefix("/").split("/")
