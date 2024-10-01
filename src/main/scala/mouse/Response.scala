@@ -148,7 +148,7 @@ object Response:
   inline private def mk(status: Status, headers: Map[String, String], body: String)(using req: Request) =
     Response(
       version = req.version,
-      status = Status.Continue,
+      status = status,
       headers = headers,
       body = stringToStream(body),
     )
