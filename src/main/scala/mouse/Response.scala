@@ -9,10 +9,11 @@ case class Response(
   body: InputStream,
 ):
   def writeToStream(outputStream: OutputStream): Unit =
-    outputStream.write(s"$version $status\r\n".getBytes)
-    outputStream.write(serializeHeaders(headers))
-    outputStream.write("\r\n\r\n".getBytes)
-    body.transferTo(outputStream)
+    writeHttpToOutputStream(outputStream)(
+      statusLine = s"$version $status",
+      headers = headers,
+      body = body,
+    )
 
   override def toString: String =
     val stream = ByteArrayOutputStream()

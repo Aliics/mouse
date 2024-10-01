@@ -1,6 +1,6 @@
 package mouse
 
-import java.io.ByteArrayInputStream
+import java.io.{ByteArrayInputStream, InputStream, OutputStream}
 import scala.concurrent.Future
 
 inline def routes(routePairs: (RouteMatcher, Request ?=> Future[Response])*) =
@@ -28,3 +28,21 @@ inline private[mouse] def stringToStream(s: String) =
 
 inline private[mouse] def uriParts(req: Request) =
   req.uri.getPath.stripPrefix("/").split("/")
+
+/**
+ * Write all the standard content for an HTTP Request/Response. Do this over an [[OutputStream]].
+ */
+inline private[mouse] def writeHttpToOutputStream(outputStream: OutputStream)(
+  statusLine: String,
+  headers: Map[String, String],
+  body: InputStream,
+) =
+  outputStream.write(s"$statusLine\r\n".getBytes)
+  outputStream.write(serializeHeaders(headers))
+
+  // If there is no headers, we don't want to add too many \r\n.
+  // Otherwise a weird newline is at the start of the body.
+  if headers.nonEmpty then outputStream.write("\r\n".getBytes)
+  
+  outputStream.write("\r\n".getBytes)
+  body.transferTo(outputStream)

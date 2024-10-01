@@ -1,5 +1,11 @@
 package mouse
 
+/**
+ * Determine if the route matches for a [[Request]].
+ * We need to know about the [[Method]]s and [[RoutePart]]s.
+ *
+ * We don't simply store a closure because we need to introspect this when utilizing route parameters.
+ */
 case class RouteMatcher(
   allowedMethods: Seq[Method],
   routeParts: Seq[RoutePart],

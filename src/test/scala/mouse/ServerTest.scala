@@ -1,5 +1,6 @@
 package mouse
 
+import org.scalatest.Ignore
 import org.scalatest.funsuite.AnyFunSuiteLike
 import org.slf4j.{Logger, LoggerFactory}
 

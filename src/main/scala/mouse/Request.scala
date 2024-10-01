@@ -20,10 +20,11 @@ case class Request(
   private[mouse] val route: Option[Route] = None,
 ):
   def writeToStream(outputStream: OutputStream): Unit =
-    outputStream.write(s"$method $uri $version\r\n".getBytes)
-    outputStream.write(serializeHeaders(headers))
-    outputStream.write("\r\n\r\n".getBytes)
-    body.transferTo(outputStream)
+    writeHttpToOutputStream(outputStream)(
+      statusLine = s"$method $uri $version",
+      headers = headers,
+      body = body,
+    )
 
   override def toString: String =
     val stream = ByteArrayOutputStream()
