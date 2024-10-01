@@ -1,7 +1,8 @@
 package mouse
 
 import java.io.{ByteArrayInputStream, InputStream, OutputStream}
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 inline def routes(routePairs: (RouteMatcher, Request ?=> Future[Response])*) =
   routePairs.map: x =>
@@ -13,6 +14,9 @@ inline def routes(routePairs: (RouteMatcher, Request ?=> Future[Response])*) =
     )
 
 /* Functions below are private. Don't think these are useful to the consumer. */
+
+inline private[mouse] def blockCall[T](futureThunk: => Future[T]): T =
+  Await.result(futureThunk, Duration.Inf)
 
 inline private[mouse] def tryToEither[L, R](inline f: => R, inline l: String => L): Either[L, R] =
   try

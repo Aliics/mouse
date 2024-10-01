@@ -5,7 +5,8 @@ import org.scalatest.funsuite.AnyFunSuiteLike
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 //@Ignore
 class ServerTest extends AnyFunSuiteLike:

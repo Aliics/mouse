@@ -42,4 +42,4 @@ class RequestTest extends AnyFunSuiteLike:
     assert(request.toString == "GET /hello HTTP/1.1\r\nContent-Type: application/json\r\n\r\n{}")
 
   def parseRequest(raw: String): Either[ParseError, Request] =
-    Await.result(Request(stringToStream(raw)), Duration.Inf)
+    blockCall(Request(stringToStream(raw)))

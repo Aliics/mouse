@@ -29,4 +29,4 @@ class ResponseTest extends AnyFunSuiteLike:
     assert(response.toString == "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n{}")
 
   def parseResponse(raw: String): Either[ParseError, Response] =
-    Await.result(Response(stringToStream(raw)), Duration.Inf)
+    blockCall(Response(stringToStream(raw)))

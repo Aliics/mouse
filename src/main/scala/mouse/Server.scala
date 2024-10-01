@@ -34,7 +34,7 @@ class Server(routes: Route*)(using logger: Logger)(using ExecutionContext):
    * @param port Socket port to bind.
    */
   def runBlocking(port: Int): Unit =
-    Await.result(run(port), Duration.Inf)
+    blockCall(run(port))
 
   /**
    * Run the [[Server]] asynchronously on the specified [[port]].
