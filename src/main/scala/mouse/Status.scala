@@ -65,7 +65,7 @@ enum Status(code: Int):
   case NetworkAuthenticationRequired extends Status(511)
 
   inline override def toString: String =
-    s"${code.toString} ${
+    s"$code ${
       this match
         case Continue => "Continue"
         case SwitchingProtocols => "Switching Protocols"
