@@ -1,6 +1,8 @@
 package mouse
 
 import mouse.errors.ParseError
+import mouse.internal.blockCall
+import mouse.types.{Request, Response}
 import org.slf4j.Logger
 
 import java.net.{ServerSocket, Socket}

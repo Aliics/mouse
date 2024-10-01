@@ -1,6 +1,8 @@
-package mouse
+package mouse.types
 
 import mouse.errors.ParseError
+import mouse.internal.{blockCall, stringToStream}
+import mouse.types.{Response, Status, Version}
 import org.scalatest.funsuite.AnyFunSuiteLike
 
 import scala.concurrent.Await

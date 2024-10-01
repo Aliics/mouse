@@ -1,5 +1,8 @@
 package mouse
 
+import mouse.internal.uriParts
+import mouse.types.{Method, Request}
+
 /**
  * Determine if the route matches for a [[Request]].
  * We need to know about the [[Method]]s and [[RoutePart]]s.

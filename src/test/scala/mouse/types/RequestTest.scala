@@ -1,6 +1,8 @@
-package mouse
+package mouse.types
 
 import mouse.errors.ParseError
+import mouse.internal.{blockCall, stringToStream}
+import mouse.types.{Method, Request, Version}
 import org.scalatest.funsuite.AnyFunSuiteLike
 
 import java.net.URI

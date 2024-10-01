@@ -1,21 +1,11 @@
-package mouse
+package mouse.internal
 
+import mouse.types.Request
 import java.io.{ByteArrayInputStream, InputStream, OutputStream}
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-inline def routes(routePairs: (RouteMatcher, Request ?=> Future[Response])*) =
-  routePairs.map: x =>
-    Route(
-      x._1,
-      r =>
-        given Request = r
-        x._2
-    )
-
-/* Functions below are private. Don't think these are useful to the consumer. */
-
-inline private[mouse] def blockCall[T](futureThunk: => Future[T]): T =
+inline private[mouse] def blockCall[T](futureThunk: Future[T]): T =
   Await.result(futureThunk, Duration.Inf)
 
 inline private[mouse] def tryToEither[L, R](inline f: => R, inline l: String => L): Either[L, R] =
@@ -47,6 +37,6 @@ inline private[mouse] def writeHttpToOutputStream(outputStream: OutputStream)(
   // If there is no headers, we don't want to add too many \r\n.
   // Otherwise a weird newline is at the start of the body.
   if headers.nonEmpty then outputStream.write("\r\n".getBytes)
-  
+
   outputStream.write("\r\n".getBytes)
   body.transferTo(outputStream)

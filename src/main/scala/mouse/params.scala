@@ -1,6 +1,8 @@
 package mouse
 
 import mouse.errors.UnknownParamNameError
+import mouse.internal.uriParts
+import mouse.types.Request
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets

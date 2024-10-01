@@ -1,7 +1,9 @@
-package mouse
+package mouse.types
 
+import mouse.Route
 import mouse.errors.ParseError
-import mouse.internal.InputParser
+import mouse.internal.{InputParser, tryToEither, writeHttpToOutputStream}
+import mouse.types.Method
 
 import java.io.{ByteArrayOutputStream, InputStream, OutputStream}
 import java.net.URI

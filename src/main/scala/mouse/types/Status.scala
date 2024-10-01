@@ -1,4 +1,4 @@
-package mouse
+package mouse.types
 
 import mouse.errors.ParseError
 

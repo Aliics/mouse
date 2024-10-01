@@ -1,7 +1,8 @@
-package mouse
+package mouse.types
 
 import mouse.errors.ParseError
-import mouse.internal.InputParser
+import mouse.internal.{InputParser, stringToStream, writeHttpToOutputStream}
+import mouse.types.Request
 
 import java.io.{ByteArrayOutputStream, InputStream, OutputStream}
 import scala.concurrent.{ExecutionContext, Future}

@@ -1,5 +1,7 @@
 package mouse
 
+import mouse.types.{Method, Request}
+
 import scala.annotation.targetName
 
 extension (m: Method)
