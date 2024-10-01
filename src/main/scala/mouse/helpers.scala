@@ -3,7 +3,7 @@ package mouse
 import java.io.ByteArrayInputStream
 import scala.concurrent.Future
 
-def routes(routePairs: (RouteMatcher, Request ?=> Future[Response])*) =
+inline def routes(routePairs: (RouteMatcher, Request ?=> Future[Response])*) =
   routePairs.map: x =>
     Route(
       x._1,
@@ -12,17 +12,19 @@ def routes(routePairs: (RouteMatcher, Request ?=> Future[Response])*) =
         x._2
     )
 
-private[mouse] def tryToEither[L, R](f: => R, l: String => L): Either[L, R] =
+/* Functions below are private. Don't think these are useful to the consumer. */
+
+inline private[mouse] def tryToEither[L, R](inline f: => R, inline l: String => L): Either[L, R] =
   try
     Right(f)
   catch
     case e: Throwable => Left(l(e.getMessage))
 
-private[mouse] def serializeHeaders(headers: Map[String, String]) =
+inline private[mouse] def serializeHeaders(headers: Map[String, String]) =
   headers.map((k, v) => s"$k: $v").toList.mkString("\r\n").getBytes
 
-private[mouse] def stringToStream(s: String) =
+inline private[mouse] def stringToStream(s: String) =
   ByteArrayInputStream(s.to(LazyList).map(_.toByte).toArray)
 
-private[mouse] def uriParts(req: Request) =
+inline private[mouse] def uriParts(req: Request) =
   req.uri.getPath.stripPrefix("/").split("/")

@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets
  * Extract a query param from the [[Request]]'s [[URI]].
  * All parameters values are [[String]]s, and are presumed to use UTF-8 encoding.
  *
- * This is just a wrapper for [[queryParam()]], but it handles the [[None]] case.
+ * This is just a wrapper for [[query()]], but it handles the [[None]] case.
  *
  * For readability, it is recommended to add the second parameter as a named argument:
  * {{{
@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets
  * @param or A default value. Lazily evaluated.
  * @return The found parameter or the default.
  */
-@inline def queryParam(key: String, or: => String)(using Request): String =
+inline def queryParam(key: String, or: => String)(using Request): String =
   queryParam(key) getOrElse or
 
 /**
