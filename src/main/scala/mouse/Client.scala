@@ -1,7 +1,6 @@
 package mouse
 
-import mouse.Client.{HttpPrefix, HttpVersion}
-import mouse.internal.{blockCall, stringToStream}
+import mouse.internal.{Constants, blockCall, stringToStream}
 import mouse.types.{Method, Request, Response, Version}
 
 import java.io.InputStream
@@ -25,66 +24,68 @@ class Client(host: String, port: Int = 80)(using ExecutionContext):
       Request(
         method = Method.Delete,
         uri = URI `create` path,
-        version = HttpVersion,
+        version = Constants.DefaultVersion,
         headers = headers,
         body = InputStream.nullInputStream,
       )
-    .flatMap(request)
+    .flatMap(request(_, None))
 
   def get(path: String, headers: Map[String, String] = Map.empty): Future[Response] =
     Future:
       Request(
         method = Method.Get,
         uri = URI `create` path,
-        version = HttpVersion,
+        version = Constants.DefaultVersion,
         headers = headers,
         body = InputStream.nullInputStream,
       )
-    .flatMap(request)
+    .flatMap(request(_, None))
 
   def options(path: String, headers: Map[String, String] = Map.empty, body: String = ""): Future[Response] =
     Future:
       Request(
         method = Method.Options,
         uri = URI `create` path,
-        version = HttpVersion,
+        version = Constants.DefaultVersion,
         headers = headers,
         body = stringToStream(body),
       )
-    .flatMap(request)
+    .flatMap(request(_, Some(body.length)))
 
   def put(path: String, headers: Map[String, String] = Map.empty, body: String = ""): Future[Response] =
     Future:
       Request(
         method = Method.Put,
         uri = URI `create` path,
-        version = HttpVersion,
+        version = Constants.DefaultVersion,
         headers = headers,
         body = stringToStream(body),
       )
-    .flatMap(request)
+    .flatMap(request(_, Some(body.length)))
 
   def post(path: String, headers: Map[String, String] = Map.empty, body: String = ""): Future[Response] =
     Future:
       Request(
         method = Method.Post,
         uri = URI `create` path,
-        version = HttpVersion,
+        version = Constants.DefaultVersion,
         headers = headers,
         body = stringToStream(body),
       )
-    .flatMap(request)
+    .flatMap(request(_, Some(body.length)))
 
-  def request(req: Request): Future[Response] =
+  def request(req: Request, contentLength: Option[Int]): Future[Response] =
     for
-      s <- Future(Socket(host.stripPrefix(HttpPrefix), port))
+      s <- Future(Socket(host.stripPrefix(Constants.HttpPrefix), port))
       _ <- Future:
-        req.writeToStream(s.getOutputStream)
+        req
+          .copy(
+            headers = req.headers
+              .updated(Constants.HostHeader, host)
+              .updatedWith(Constants.ContentLengthHeader)(_ => contentLength.map(_.toString))
+          )
+          .writeToStream(s.getOutputStream)
       resp <-
         Response(s.getInputStream).collect:
           case Right(r) => r
     yield resp
-
-object Client:
-  private lazy val HttpVersion = Version(1, 1)
-  private lazy val HttpPrefix = "http://"

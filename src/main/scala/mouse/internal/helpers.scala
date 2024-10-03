@@ -30,7 +30,7 @@ inline private[mouse] def writeHttpToOutputStream(outputStream: OutputStream)(
   statusLine: String,
   headers: Map[String, String],
   body: InputStream,
-) =
+): Unit =
   outputStream.write(s"$statusLine\r\n".getBytes)
   outputStream.write(serializeHeaders(headers))
 
@@ -39,4 +39,14 @@ inline private[mouse] def writeHttpToOutputStream(outputStream: OutputStream)(
   if headers.nonEmpty then outputStream.write("\r\n".getBytes)
 
   outputStream.write("\r\n".getBytes)
-  body.transferTo(outputStream)
+
+  // Content-Length as a valid Int or 0. If it's invalid or not present, it's ZERO!
+  val contentLength = headers
+    .get(Constants.ContentLengthHeader)
+    .flatMap(_.toIntOption)
+    .getOrElse(0)
+
+  // Nothing to write. Skip this.
+  if contentLength > 0 then outputStream.write(body.readNBytes(contentLength))
+
+  outputStream.flush()

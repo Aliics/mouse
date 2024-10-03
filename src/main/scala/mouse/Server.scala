@@ -8,7 +8,6 @@ import org.slf4j.Logger
 import java.net.{ServerSocket, Socket}
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 /**
  * Create the [[Server]] with the specified [[Route]]s.
@@ -55,8 +54,11 @@ class Server(routes: Route*)(using logger: Logger)(using ExecutionContext):
    * @return
    */
   private def listen(ss: ServerSocket): Future[Unit] =
+    logger.debug("Listening for next connection")
+
     for
       conn <- Future(ss.accept())
+      _ = logger.debug("Connection accepted {}", conn.getInetAddress)
       _ = handle(conn) // Future is not awaited. Executed asynchronously.
       _ <- listen(ss) // Listen for the next request.
     yield ()
@@ -68,27 +70,29 @@ class Server(routes: Route*)(using logger: Logger)(using ExecutionContext):
 
         for
           route <- Future(routes.find(_.matcher(req)))
+          _ = logger.debug("Request at {} has route result: {}", req.uri, route)
           resp <- route.fold
             // No route was found. 404.
               (Future(Response.NotFound()))
             // Pass the request onto the handler. We found the route!
             // Let's also smuggle the route onto the request for more context! :)
-              (_.handler(req.copy(route = route)).transformWith:
-                case Success(r) => Future(r)
-                case Failure(e) => Future:
-                  // Log the error and respond with a 500, so the caller knows something went awry.
-                  // We don't want to necessarily give the caller details, though, so let's respond vaguely.
-                  logger.error(s"Unhandled error thrown. Request to ${req.uri} failed.", e)
-                  Response.InternalServerError(body = "Request handling failed.")
+              (_.handler(req.copy(route = route)).recover: e =>
+                // Log the error and respond with a 500, so the caller knows something went awry.
+                // We don't want to necessarily give the caller details, though, so let's respond vaguely.
+                logger.error(s"Unhandled error thrown. Request to ${req.uri} failed.", e)
+                Response.InternalServerError(body = "Request handling failed.")
               )
 
           // Respond and close.
           _ <- Future:
             resp.writeToStream(conn.getOutputStream)
+            logger.debug("Finished writing data for request at {}", req.uri)
             conn.close()
         yield ()
-      case Left(ParseError(message)) =>
+      case Left(e@ParseError(message)) =>
         // Write the error message back to the response.
         // These are parsing errors, not handling errors.
         Future:
+          logger.debug("HTTP Parsing error occurred.", e)
           conn.getOutputStream.write(s"ParseError: $message".getBytes)
+          conn.close()

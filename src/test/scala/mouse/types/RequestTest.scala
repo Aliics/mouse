@@ -37,11 +37,14 @@ class RequestTest extends AnyFunSuiteLike:
       method = Method.Get,
       uri = URI `create` "/hello",
       version = Version(1, 1),
-      headers = Map("Content-Type" -> "application/json"),
+      headers = Map(
+        "Content-Type" -> "application/json",
+        "Content-Length" -> "2",
+      ),
       body = stringToStream("{}"),
     )
 
-    assert(request.toString == "GET /hello HTTP/1.1\r\nContent-Type: application/json\r\n\r\n{}")
+    assert(request.toString == "GET /hello HTTP/1.1\r\nContent-Type: application/json\r\nContent-Length: 2\r\n\r\n{}")
 
   def parseRequest(raw: String): Either[ParseError, Request] =
     blockCall(Request(stringToStream(raw)))

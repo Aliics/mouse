@@ -1,8 +1,7 @@
 package mouse.types
 
 import mouse.errors.ParseError
-import mouse.internal.{InputParser, stringToStream, writeHttpToOutputStream}
-import mouse.types.Request
+import mouse.internal.{Constants, InputParser, stringToStream, writeHttpToOutputStream}
 
 import java.io.{ByteArrayOutputStream, InputStream, OutputStream}
 import scala.concurrent.{ExecutionContext, Future}
@@ -175,6 +174,7 @@ object Response:
     Response(
       version = req.version,
       status = status,
-      headers = headers,
+      headers = headers
+        .updated(Constants.ContentLengthHeader, body.length.toString),
       body = stringToStream(body),
     )
