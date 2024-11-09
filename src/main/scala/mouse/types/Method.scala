@@ -41,6 +41,7 @@ enum Method:
    * The PATCH method applies partial modifications to a resource.
    */
   case Patch
+  
   /**
    * The POST method submits an entity to the specified resource,
    * often causing a change in state or side effects on the server.

@@ -8,6 +8,18 @@ import java.io.{ByteArrayOutputStream, InputStream, OutputStream}
 import java.net.URI
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+ * HTTP Request type.
+ *
+ * Generally constructing a [[Request]] directly is not recommended. Instead, prefer using [[mouse.Client]]'s request
+ * methods, such as [[mouse.Client.get()]].
+ *
+ * @param method HTTP Method
+ * @param uri Resource being requested
+ * @param version HTTP version (1.1 only for now)
+ * @param headers Key-value map entries
+ * @param body Body byte stream
+ */
 case class Request(
   method: Method,
   uri: URI,
