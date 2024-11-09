@@ -181,7 +181,7 @@ object Response:
   inline def NetworkAuthenticationRequired(headers: Map[String, String] = Map.empty, body: String = "")(using Request): Response =
     mk(Status.NetworkAuthenticationRequired, headers, body)
 
-  inline private def mk(status: Status, headers: Map[String, String], body: String)(using req: Request) =
+  private def mk(status: Status, headers: Map[String, String], body: String)(using req: Request) =
     Response(
       version = req.version,
       status = status,
