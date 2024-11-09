@@ -1,131 +1,98 @@
 package mouse
 
-import mouse.Implicits.FutureEx
-import mouse.exceptions._
+import mouse.errors.ParseError
+import mouse.internal.blockCall
+import mouse.types.{Request, Response}
+import org.slf4j.Logger
 
-import java.io.{BufferedReader, InputStreamReader}
 import java.net.{ServerSocket, Socket}
-import java.util.concurrent.ConcurrentLinkedDeque
-import scala.concurrent.duration.{Duration, DurationInt}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 /**
- * Handles all HTTP server tasks like managing connections and routing.
+ * Create the [[Server]] with the specified [[Route]]s.
  *
- * Here is a small code snippet of how it looks to use [[Server]].
+ * To actually to running the server, invoke the [[run]] method with the port you want to listen on.
+ *
  * {{{
- *   val routes = Routes(
- *     (Get / "hello", _ => Future.successful(Ok("Hello, World!")))
- *   )
- *
- *   Server(routes).runBlocking()
+ *   Server(
+ *     routes(
+ *       Method.Get / "hello" / "world" -> greetWorld,
+ *     ) *
+ *   ).runBlocking(port = 8080)
  * }}}
  *
- * @param routes      The routes to handle valid requests on.
- * @param address     Address to host on as. ("[address]:port")
- * @param timeout     How long a request has to be fulfilled until a timeout occurs.
- * @param parallelism How many connections to handle in parallel.
- * @param ec          Context to use for all concurrency.
+ * @param routes Request handlers bound to specified endpoints.
+ * @param logger A logger implementation is required, this is for important debugging information.
+ * @param x$3    To handle everything asynchronously, an [[ExecutionContext]] must be provided.
  */
-class Server(
-  val routes: Routes,
-  val address: String = ":8080",
-  val timeout: Duration = 30.seconds,
-  val parallelism: Int = 10,
-)(implicit private val ec: ExecutionContext) {
-  private val server = {
-    val port = address.split(":")(1).toInt
-    new ServerSocket(port, parallelism)
-  }
-
-  private val unhandledConns = new ConcurrentLinkedDeque[Socket]()
+class Server(routes: Route*)(using logger: Logger)(using ExecutionContext):
+  /**
+   * Wraps the [[run]] method using [[Await]].
+   * This is the method that most servers will want to use.
+   * Both exist to allow for multiple server bindings and control.
+   *
+   * @param port Socket port to bind.
+   */
+  def runBlocking(port: Int): Unit =
+    blockCall(run(port))
 
   /**
-   * Accept connections from the ServerSocket. Puts them in a deque to be processed later.
+   * Run the [[Server]] asynchronously on the specified [[port]].
+   *
+   * @param port Socket port to bind.
    */
-  def accept(): Future[Unit] =
-    for {
-      _ <-
-        if (unhandledConns.size() < parallelism)
-          Future(unhandledConns.push(server.accept()))
-        else {
-          Future.successful(())
-        }
-      _ <- accept()
-    } yield ()
+  //noinspection ScalaWeakerAccess
+  def run(port: Int): Future[Unit] =
+    Future(ServerSocket(port)).flatMap(listen)
 
   /**
-   * Handle inbound connections as HTTP requests.
+   * Recursively accept connections and offload the handling to the [[handle]] function.
+   * Runs asynchronously. The handling is done asynchronously as well, and the result is not awaited.
+   *
+   * @param ss [[ServerSocket]] bound.
+   * @return
    */
-  def handle(): Future[Unit] = {
-    def allUnhandledConns(n: Int = parallelism): List[Socket] =
-      if (unhandledConns.isEmpty || n <= 0) List()
-      else unhandledConns.pop() :: allUnhandledConns(n - 1)
+  private def listen(ss: ServerSocket): Future[Unit] =
+    logger.debug("Listening for next connection")
 
-    // Connections are handled and not watched.
-    // Processing on batch should not stop another from processing.
-    Future.traverse(allUnhandledConns()) { conn =>
-      (for {
-        req <- parseRequest(conn)
-        res <- invokeRouteHandler(req)
-      } yield res)
-        .timeout(timeout) // Handle request for as long as the timeout allows.
-        .map {
-          case Some(value) => value
-          case None => Response(
-            StatusCode.RequestTimeout,
-            Headers(),
-            s"Could not complete request in ${timeout.toString}.",
-          )
-        }
-        .flatMap(writeResponse(conn, _))
-    }.flatMap(_ => handle())
-  }
+    for
+      conn <- Future(ss.accept())
+      _ = logger.debug("Connection accepted {}", conn.getInetAddress)
+      _ = handle(conn) // Future is not awaited. Executed asynchronously.
+      _ <- listen(ss) // Listen for the next request.
+    yield ()
 
-  private def parseRequest(conn: Socket): Future[Request] = Future {
-    implicit val r: Routes = routes
+  private def handle(conn: Socket): Future[Unit] =
+    Request(conn.getInputStream).flatMap:
+      case Right(req) =>
+        given Request = req
 
-    val reader = new BufferedReader(new InputStreamReader(conn.getInputStream))
+        for
+          route <- Future(routes.find(_.matcher(req)))
+          _ = logger.debug("Request at {} has route result: {}", req.uri, route)
+          resp <- route.fold
+            // No route was found. 404.
+              (Future(Response.NotFound()))
+            // Pass the request onto the handler. We found the route!
+            // Let's also smuggle the route onto the request for more context! :)
+              (_.handler(req.copy(route = route)).recover: e =>
+                // Log the error and respond with a 500, so the caller knows something went awry.
+                // We don't want to necessarily give the caller details, though, so let's respond vaguely.
+                logger.error(s"Unhandled error thrown. Request to ${req.uri} failed.", e)
+                Response.InternalServerError(body = "Request handling failed.")
+              )
 
-    def readReqHeading(): String = {
-      val line = reader.readLine()
-      if (line == null) readReqHeading()
-      else if (line.isBlank) "\n"
-      else s"$line\n${readReqHeading()}"
-    }
-
-    // To obtain the body, we need to know the length.
-    // This is reasonable standard, so we will use the Content-Length header.
-    val heading = readReqHeading()
-    val contentLength = heading match {
-      case s"${_}Content-Length: $lengthAndTail" =>
-        lengthAndTail.split("\n").head.toInt
-      case _ =>
-        0
-    }
-
-    val body = new Array[Char](contentLength)
-    reader.read(body, 0, contentLength)
-
-    Request.parse(heading + body.mkString)
-  }
-
-  private def invokeRouteHandler(req: Request) = {
-    routes(req.method, req.uri) match {
-      case Some(route) =>
-        route(req).recover {
-          case BadRequestException(message) => BadRequest(message)
-          case NotFoundException(message) => NotFound(message)
-          case UnauthorizedException(message) => Unauthorized(message)
-          case throwable => InternalServerError(throwable.getMessage)
-        }
-      case None =>
-        Future.successful(NotFound(s"""Could not find route "${req.uri}".\n"""))
-    }
-  }
-
-  private def writeResponse(conn: Socket, res: Response) = Future {
-    conn.getOutputStream.write(res.serialized.getBytes)
-    conn.getOutputStream.flush()
-  }
-}
+          // Respond and close.
+          _ <- Future:
+            resp.writeToStream(conn.getOutputStream)
+            logger.debug("Finished writing data for request at {}", req.uri)
+            conn.close()
+        yield ()
+      case Left(e@ParseError(message)) =>
+        // Write the error message back to the response.
+        // These are parsing errors, not handling errors.
+        Future:
+          logger.debug("HTTP Parsing error occurred.", e)
+          conn.getOutputStream.write(s"ParseError: $message".getBytes)
+          conn.close()

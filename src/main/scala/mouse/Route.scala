@@ -1,9 +1,24 @@
 package mouse
 
+import mouse.types.{Request, Response}
+
 import scala.concurrent.Future
 
-trait Route {
-  def handle(req: Request): Future[Response]
+/**
+ * Simple route definition for our [[Server]].
+ *
+ * Who is your endpoint and what does he do?
+ */
+case class Route(
+  matcher: RouteMatcher,
+  handler: Request => Future[Response],
+)
 
-  def apply(req: Request): Future[Response] = handle(req)
-}
+inline def routes(routePairs: (RouteMatcher, Request ?=> Future[Response])*) =
+  routePairs.map: x =>
+    Route(
+      x._1,
+      r =>
+        given Request = r
+        x._2
+    )
