@@ -6,6 +6,17 @@ import mouse.internal.{Constants, InputParser, stringToStream, writeHttpToOutput
 import java.io.{ByteArrayOutputStream, InputStream, OutputStream}
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+ * HTTP Request type.
+ *
+ * Generally constructing a [[Response]] directly is not recommended. Instead, prefer using the helper constructor 
+ * functions, such as [[Response.Ok]].
+ *
+ * @param version HTTP version (1.1 only for now)
+ * @param status Response status code
+ * @param headers Key-value map entries
+ * @param body Body byte stream
+ */
 case class Response(
   version: Version,
   status: Status,

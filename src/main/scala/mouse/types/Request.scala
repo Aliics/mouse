@@ -12,7 +12,7 @@ import scala.concurrent.{ExecutionContext, Future}
  * HTTP Request type.
  *
  * Generally constructing a [[Request]] directly is not recommended. Instead, prefer using [[mouse.Client]]'s request
- * methods, such as [[mouse.Client.get()]].
+ * methods, such as [[mouse.Client.get]].
  *
  * @param method HTTP Method
  * @param uri Resource being requested
