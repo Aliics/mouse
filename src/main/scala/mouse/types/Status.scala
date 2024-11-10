@@ -2,6 +2,11 @@ package mouse.types
 
 import mouse.errors.ParseError
 
+/**
+ * Reference: [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Status]]
+ *
+ * @param code Numeric status code
+ */
 enum Status(code: Int):
   case Continue extends Status(100)
   case SwitchingProtocols extends Status(101)

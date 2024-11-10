@@ -1,5 +1,5 @@
 import sbt.url
-ThisBuild / version := "0.5.0"
+ThisBuild / version := "0.5.1"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / organization := "io.github.aliics"
 ThisBuild / organizationName := "aliics"

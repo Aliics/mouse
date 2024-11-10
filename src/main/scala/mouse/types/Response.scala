@@ -6,6 +6,17 @@ import mouse.internal.{Constants, InputParser, stringToStream, writeHttpToOutput
 import java.io.{ByteArrayOutputStream, InputStream, OutputStream}
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+ * HTTP Request type.
+ *
+ * Generally constructing a [[Response]] directly is not recommended. Instead, prefer using the helper constructor 
+ * functions, such as [[Response.Ok]].
+ *
+ * @param version HTTP version (1.1 only for now)
+ * @param status  Response status code
+ * @param headers Key-value map entries
+ * @param body    Body byte stream
+ */
 case class Response(
   version: Version,
   status: Status,
@@ -24,6 +35,12 @@ case class Response(
     writeToStream(stream)
     stream.toString
 
+/**
+ * HTTP Request type.
+ *
+ * Generally constructing a [[Response]] directly is not recommended. Instead, prefer using the helper constructor 
+ * functions, such as [[Response.Ok]].
+ */
 object Response:
   /**
    * Parse an HTTP Response from an [[InputStream]].
@@ -170,7 +187,7 @@ object Response:
   inline def NetworkAuthenticationRequired(headers: Map[String, String] = Map.empty, body: String = "")(using Request): Response =
     mk(Status.NetworkAuthenticationRequired, headers, body)
 
-  inline private def mk(status: Status, headers: Map[String, String], body: String)(using req: Request) =
+  private def mk(status: Status, headers: Map[String, String], body: String)(using req: Request) =
     Response(
       version = req.version,
       status = status,

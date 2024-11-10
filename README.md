@@ -3,7 +3,7 @@
 Small, simple, minimal HTTP server and client library with no dependencies.
 Since it isn't doing too much in the background, it should also be pretty darn fast.
 On my machine, a query to a simple query to a nop GET request can be as fast as **5ms** with cURL.
-This is on-par with popular HTTP libraries.
+This is on-par or as fast as other popular HTTP libraries in a variety of languages.
 
 # Usage
 
@@ -18,7 +18,7 @@ libraryDependencies ++= Seq(
 ```
 
 Setting up a [Server](./src/main/scala/mouse/Server.scala) is as easy as providing
-some [Routes](./src/main/scala/mouse/Route.scala) and a port! Then called `run` or `runBlocking`.
+some [Routes](./src/main/scala/mouse/Route.scala) and a port! Then calling `run` or `runBlocking`.
 
 ```scala
 Server(
