@@ -2,6 +2,7 @@ package mouse
 
 import mouse.internal.{Constants, blockCall, stringToStream}
 import mouse.types.{Method, Request, Response, Version}
+import org.slf4j.Logger
 
 import java.io.InputStream
 import java.net.{Socket, URI}
@@ -23,7 +24,7 @@ import scala.concurrent.{ExecutionContext, Future}
  * @param host Host URL, like github.com to make requests against.
  * @param port Default 80 for HTTP, other ports can be specified.
  */
-class Client(host: String, port: Int = 80)(using ExecutionContext):
+class Client(host: String, port: Int = 80)(using logger: Logger)(using ExecutionContext):
   inline def connectBlocking(path: String, headers: Map[String, String] = Map.empty): Response =
     blockCall(connect(path, headers))
   inline def deleteBlocking(path: String, headers: Map[String, String] = Map.empty): Response =
@@ -221,6 +222,7 @@ class Client(host: String, port: Int = 80)(using ExecutionContext):
     for
       s <- Future(Socket(host.stripPrefix(Constants.HttpPrefix), port))
       _ <- Future:
+        logger.debug("""Sending request to "{}"""", req.uri.toString)
         req
           .copy(
             headers = req.headers

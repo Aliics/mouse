@@ -33,4 +33,4 @@ class JustEasyToRunTests extends AnyFunSuiteLike:
 
   test("client"):
     val resp = Client("localhost", 8080).getBlocking("hello/alex")
-    logger.info("Response: {}", resp)
+    logger.info("Response: {}", resp.textBlocking())

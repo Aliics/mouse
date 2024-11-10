@@ -1,9 +1,10 @@
 package mouse.types
 
 import mouse.errors.ParseError
-import mouse.internal.{Constants, InputParser, stringToStream, writeHttpToOutputStream}
+import mouse.internal.{Constants, InputParser, blockCall, stringToStream, writeHttpToOutputStream}
 
 import java.io.{ByteArrayOutputStream, InputStream, OutputStream}
+import java.nio.charset.{Charset, StandardCharsets}
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
@@ -23,6 +24,30 @@ case class Response(
   headers: Map[String, String],
   body: InputStream,
 ):
+  /**
+   * Read body blocking. Wrapper for [[text]].
+   *
+   * @param charset Character charset to read, defaults to UTF-8
+   * @return
+   */
+  def textBlocking(charset: Charset = StandardCharsets.UTF_8)(using ExecutionContext): String =
+    blockCall(text(charset))
+
+  /**
+   * Read the body of the response as text, where the number of bytes to read is equal the Content-Length header.
+   * Assuming the header is not present, an empty String is returned.
+   *
+   * @param charset Character charset to read, defaults to UTF-8
+   * @return
+   */
+  def text(charset: Charset = StandardCharsets.UTF_8)(using ExecutionContext): Future[String] =
+    headers.get(Constants.ContentLengthHeader) match
+      case Some(len) => Future:
+        val bs = body.readNBytes(len.toInt)
+        new String(bs, charset)
+      case None =>
+        Future successful ""
+
   def writeToStream(outputStream: OutputStream): Unit =
     writeHttpToOutputStream(outputStream)(
       statusLine = s"$version $status",
