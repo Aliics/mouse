@@ -15,15 +15,14 @@ import scala.concurrent.{Await, Future}
 
   Await.result(
     Future.sequence:
-      (0 to 10000).toList.map: _ =>
-        Future:
-          for
-            resp <- client.get("ping")
-            body <- resp.text()
-          yield
-            logger.info("""/ping response: "{}"""", body)
+      (0 to 10_000).toList.map: _ =>
+        for
+          resp <- client.get("ping")
+          body <- resp.text()
+        yield
+          logger.info("""/ping response: "{}"""", body)
 
-            if body == "pong" then logger.info("Ping pong success!")
-            else logger.error("Total failure!"),
+          if body == "pong" then logger.info("Ping pong success!")
+          else logger.error("Total failure!"),
     Duration.Inf,
   )
