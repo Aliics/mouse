@@ -10,6 +10,11 @@ import mouse.errors.ParseError
 case class Version(major: Int, minor: Int):
   override def toString: String = s"HTTP/$major.$minor"
 
+/**
+ * HTTP version being utilized for [[Request]]/[[Response]] (de)serialization.
+ *
+ * <b>Note:</b> Only HTTP/1.1 is supported right now.
+ */
 object Version:
   /**
    * Parse HTTP version from a [[String]]. Format is HTTP/$major.$major.

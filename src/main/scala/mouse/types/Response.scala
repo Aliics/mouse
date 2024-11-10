@@ -13,9 +13,9 @@ import scala.concurrent.{ExecutionContext, Future}
  * functions, such as [[Response.Ok]].
  *
  * @param version HTTP version (1.1 only for now)
- * @param status Response status code
+ * @param status  Response status code
  * @param headers Key-value map entries
- * @param body Body byte stream
+ * @param body    Body byte stream
  */
 case class Response(
   version: Version,
@@ -35,6 +35,12 @@ case class Response(
     writeToStream(stream)
     stream.toString
 
+/**
+ * HTTP Request type.
+ *
+ * Generally constructing a [[Response]] directly is not recommended. Instead, prefer using the helper constructor 
+ * functions, such as [[Response.Ok]].
+ */
 object Response:
   /**
    * Parse an HTTP Response from an [[InputStream]].

@@ -44,6 +44,12 @@ case class Request(
     writeToStream(stream)
     stream.toString
 
+/**
+ * HTTP Request type.
+ *
+ * Generally constructing a [[Request]] directly is not recommended. Instead, prefer using [[mouse.Client]]'s request
+ * methods, such as [[mouse.Client.get]].
+ */
 object Request:
   /**
    * Parse an HTTP Request from an [[InputStream]].
