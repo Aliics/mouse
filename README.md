@@ -32,8 +32,10 @@ Server(
 A [Client](./src/main/scala/mouse/Client.scala) is even easier!
 
 ```scala
-Client("localhost", 8080).getBlocking("hello/alex")
+Client("localhost", 8080).getBlocking("hello/alex").textBlocking()
 ```
 
 All HTTP method helper methods have a "blocking" wrapper for convenience. Generally, you'll want to use the async ones
 (`getBlocking` -> `get`).
+
+Full examples exists in the [examples](/examples) directory.
