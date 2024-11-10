@@ -12,7 +12,7 @@ In your build.sbt:
 ```scala
 libraryDependencies ++= Seq(
   // ...
-  "io.github.aliics" %% "mouse" % "0.5.1",
+  "io.github.aliics" %% "mouse" % "0.5.2",
   // ...
 )
 ```

@@ -3,13 +3,14 @@ import mouse.types.*
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.ExecutionContext.Implicits.given
-import scala.concurrent.Future
 
 @main def pingClient(): Unit =
-  given Logger = LoggerFactory.getLogger("examples")
+  given logger: Logger = LoggerFactory.getLogger("pingClient")
 
-  Server(
-    routes(
-      Method.Get / "ping" -> ping,
-    ) *
-  ).runBlocking(port = 8080)
+  val resp = Client("localhost", 8081).getBlocking("ping")
+  val respText = resp.textBlocking()
+
+  logger.info("""/ping response: "{}"""", respText)
+
+  if respText == "pong" then logger.info("Ping pong success!")
+  else logger.error("Total failure!")
