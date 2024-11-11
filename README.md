@@ -1,11 +1,25 @@
 # Mouse - HTTP Server + Client Library
 
-Small, simple, minimal HTTP server and client library with no dependencies.
-Since it isn't doing too much in the background, it should also be pretty darn fast.
-On my machine, a query to a simple query to a nop GET request can be as fast as **5ms** with cURL.
-This is on-par or as fast as other popular HTTP libraries in a variety of languages.
+Small, simple, and lightweight HTTP server and client library with no dependencies.
 
-# Usage
+Using cURL as a client, the HTTP server responds within 5ms, which is faster than many popular
+alternatives.
+
+# Motivation
+
+Other HTTP libraries had the issue of having a large dependency tree and a lot of setup to make even the most basic of
+endpoints. The Scala ecosystem really needed an easy-to-use and simple library with no fuss, and that's what
+**mouse is**!
+
+**Our goals:**
+
+- Easy to use
+- Simple to reason about
+- Quick to install
+- Great performance
+- Works from prototype to production
+
+# Get Started
 
 In your build.sbt:
 
@@ -15,6 +29,13 @@ libraryDependencies ++= Seq(
   "io.github.aliics" %% "mouse" % "0.5.2",
   // ...
 )
+```
+
+mouse's layout is very simple, there are only two imports you will need:
+
+```scala
+import mouse.* // For our Server, Client, etc. 
+import mouse.types.* // For our Request, Response, etc.
 ```
 
 Setting up a [Server](./src/main/scala/mouse/Server.scala) is as easy as providing
@@ -32,10 +53,17 @@ Server(
 A [Client](./src/main/scala/mouse/Client.scala) is even easier!
 
 ```scala
-Client("localhost", 8080).getBlocking("hello/alex").textBlocking()
+Client("localhost", port = 8080)
+  .getBlocking("hello/alex") // GET Request was made, and we awaited the Response.
+  .textBlocking() // The body of the response.
 ```
 
 All HTTP method helper methods have a "blocking" wrapper for convenience. Generally, you'll want to use the async ones
 (`getBlocking` -> `get`).
 
 Full examples exists in the [examples](/examples) directory.
+
+# Contributing
+
+Get your [fork](https://github.com/Aliics/mouse/fork) and make a [pull request](https://github.com/Aliics/mouse/pulls)!
+We'll go from there.
