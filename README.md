@@ -1,5 +1,7 @@
 # Mouse - HTTP Server + Client Library
 
+[![mouse Scala version support](https://index.scala-lang.org/aliics/mouse/mouse/latest.svg)](https://index.scala-lang.org/aliics/mouse/mouse)
+
 Small, simple, and lightweight HTTP server and client library with no dependencies.
 
 Using cURL as a client, the HTTP server responds within 5ms, which is faster than many popular
