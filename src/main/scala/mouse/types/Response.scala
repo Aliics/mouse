@@ -1,5 +1,6 @@
 package mouse.types
 
+import mouse.headersToHeaderValues
 import mouse.errors.ParseError
 import mouse.internal.{Constants, InputParser, blockCall, stringToStream, writeHttpToOutputStream}
 
@@ -41,7 +42,7 @@ case class Response(
    * @return
    */
   def text(charset: Charset = StandardCharsets.UTF_8)(using ExecutionContext): Future[String] =
-    headers.get(Constants.ContentLengthHeader) match
+    headers.contentLength match
       case Some(len) => Future:
         val bs = body.readNBytes(len.toInt)
         new String(bs, charset)
