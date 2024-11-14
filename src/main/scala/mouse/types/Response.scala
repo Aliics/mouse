@@ -38,6 +38,9 @@ case class Response(
    * Read the body of the response as text, where the number of bytes to read is equal the Content-Length header.
    * Assuming the header is not present, an empty String is returned.
    *
+   * If the response body has already been read by either the [[writeToStream]] or [[toString]] methods, then this will
+   * result in an empty String. This is because the [[InputStream]] will already be exhausted.
+   *
    * @param charset Character charset to read, defaults to UTF-8
    * @return
    */
