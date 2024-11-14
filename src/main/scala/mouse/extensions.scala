@@ -20,6 +20,13 @@ extension (m: Method)
     )
 
 extension (ms: Seq[Method])
+  @targetName("andMethod")
+  inline def &(m1: Method): RouteMatcher =
+    RouteMatcher(
+      allowedMethods = ms :+ m1,
+      routeParts = Nil,
+    )
+
   @targetName("join")
   inline def /(p: RoutePart): RouteMatcher =
     RouteMatcher(
