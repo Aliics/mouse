@@ -1,3 +1,5 @@
+package mouse
+
 import mouse.*
 import mouse.types.*
 import org.scalatest.funsuite.AnyFunSuiteLike
