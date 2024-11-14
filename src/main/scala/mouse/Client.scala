@@ -220,9 +220,10 @@ class Client(host: String, port: Int = 80)(using logger: Logger)(using Execution
    */
   def request(req: Request, contentLength: Option[Int] = None): Future[Response] =
     for
+      _ <- Future(logger.debug("""Connecting to host "{}" on "{}"""", host, port))
       s <- Future(Socket(host.stripPrefix(Constants.HttpPrefix), port))
       _ <- Future:
-        logger.debug("""Sending request to "{}"""", req.uri.toString)
+        logger.debug("""Sending request to "{}": "{}"""", host, req.uri.toString)
         req
           .copy(
             headers = req.headers
