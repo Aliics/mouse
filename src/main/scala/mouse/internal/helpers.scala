@@ -1,5 +1,6 @@
 package mouse.internal
 
+import mouse.headersToHeaderValues
 import mouse.types.Request
 import java.io.{ByteArrayInputStream, InputStream, OutputStream}
 import scala.concurrent.duration.Duration
@@ -42,7 +43,7 @@ inline private[mouse] def writeHttpToOutputStream(outputStream: OutputStream)(
 
   // Content-Length as a valid Int or 0. If it's invalid or not present, it's ZERO!
   val contentLength = headers
-    .get(Constants.ContentLengthHeader)
+    .contentLength
     .flatMap(_.toIntOption)
     .getOrElse(0)
 

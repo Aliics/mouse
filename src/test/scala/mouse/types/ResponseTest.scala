@@ -42,7 +42,6 @@ class ResponseTest extends AnyFunSuiteLike:
       "It's a God awful small affair. To the girl with the mousy hair. But her mommy is yelling no. And her daddy has told her to go."
     )
 
-
   test("case-insensitive header value extractions"):
     val Right(response) = parseResponse(
       s"""HTTP/1.1 200 OK\r
