@@ -4,8 +4,7 @@
 
 Small, simple, and lightweight HTTP server and client library with no dependencies.
 
-Using cURL as a client, the HTTP server responds within 5ms, which is faster than many popular
-alternatives.
+Using Postman as a client, the HTTP server responds within 2-3ms, which is faster than many popular alternatives.
 
 # Motivation
 

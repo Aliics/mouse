@@ -38,13 +38,8 @@ case class Response(
    * If the response body has already been read by either the [[writeToStream]] or [[toString]] methods, then this will
    * result in an empty String. This is because the [[InputStream]] will already be exhausted.
    */
-  def text(using ExecutionContext, Codec): Future[String] = Future:
-    val src = Source.fromInputStream(body)
-    val txt = headers.contentLength.fold(src.mkString): len =>
-      src.take(len.toInt).mkString
-
-    src.close()
-    txt
+  def text(using ExecutionContext, Codec): Future[String] =
+    readBodyFromSource(body, headers.contentLength.map(_.toInt))
 
   def writeToStream(outputStream: OutputStream): Unit =
     writeHttpToOutputStream(outputStream)(

@@ -1,12 +1,13 @@
 package mouse.types
 
-import mouse.Route
 import mouse.errors.ParseError
-import mouse.internal.{InputParser, tryToEither, writeHttpToOutputStream}
+import mouse.internal.{InputParser, blockCall, readBodyFromSource, tryToEither, writeHttpToOutputStream}
+import mouse.{Route, headersToHeaderValues}
 
 import java.io.{ByteArrayOutputStream, InputStream, OutputStream}
 import java.net.URI
 import scala.concurrent.{ExecutionContext, Future}
+import scala.io.{Codec, Source}
 
 /**
  * HTTP Request type.
@@ -14,11 +15,11 @@ import scala.concurrent.{ExecutionContext, Future}
  * Generally constructing a [[Request]] directly is not recommended. Instead, prefer using [[mouse.Client]]'s request
  * methods, such as [[mouse.Client.get]].
  *
- * @param method HTTP Method
- * @param uri Resource being requested
+ * @param method  HTTP Method
+ * @param uri     Resource being requested
  * @param version HTTP version (1.1 only for now)
  * @param headers Key-value map entries
- * @param body Body byte stream
+ * @param body    Body byte stream
  */
 case class Request(
   method: Method,
@@ -32,6 +33,22 @@ case class Request(
    */
   private[mouse] val route: Option[Route] = None,
 ):
+  /**
+   * Read body blocking. Wrapper for [[text]].
+   */
+  def textBlocking()(using ExecutionContext, Codec): String =
+    blockCall(text)
+
+  /**
+   * Read the body of the request as text, where the number of bytes to read is equal the Content-Length header.
+   * Assuming the header is not present, we will attempt to read until the input is exhausted.
+   *
+   * If the request body has already been read by either the [[writeToStream]] or [[toString]] methods, then this will
+   * result in an empty String. This is because the [[InputStream]] will already be exhausted.
+   */
+  def text(using ExecutionContext, Codec): Future[String] = 
+    readBodyFromSource(body, headers.contentLength.map(_.toInt))
+
   def writeToStream(outputStream: OutputStream): Unit =
     writeHttpToOutputStream(outputStream)(
       statusLine = s"$method $uri $version",

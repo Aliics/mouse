@@ -13,24 +13,23 @@ import scala.io.Source
 
 class RequestTest extends AnyFunSuiteLike:
   test("standard GET request"):
-    val Right(response) = parseRequest("GET / HTTP/1.1\r\nContent-Type: plain/text\r\n\r\n"): @unchecked
+    val Right(request) = parseRequest("GET / HTTP/1.1\r\nContent-Type: plain/text\r\n\r\n"): @unchecked
 
-    assert(response.method == Method.Get)
-    assert(response.uri == URI.create("/"))
-    assert(response.version == Version(1, 1))
-    assert(response.headers == Map("Content-Type" -> "plain/text"))
+    assert(request.method == Method.Get)
+    assert(request.uri == URI.create("/"))
+    assert(request.version == Version(1, 1))
+    assert(request.headers == Map("Content-Type" -> "plain/text"))
 
   test("standard POST request"):
-    val Right(response) = parseRequest(
+    val Right(request) = parseRequest(
       "POST /create HTTP/1.1\r\nContent-Type: application/json\r\n\r\n{\"foo\":\"bar\"}",
     ): @unchecked
 
-    val body = Source.fromInputStream(response.body).mkString
-    assert(response.method == Method.Post)
-    assert(response.uri == URI.create("/create"))
-    assert(response.version == Version(1, 1))
-    assert(response.headers == Map("Content-Type" -> "application/json"))
-    assert(body == """{"foo":"bar"}""")
+    assert(request.method == Method.Post)
+    assert(request.uri == URI.create("/create"))
+    assert(request.version == Version(1, 1))
+    assert(request.headers == Map("Content-Type" -> "application/json"))
+    assert(request.textBlocking() == """{"foo":"bar"}""")
 
   test("serialize request"):
     val request = Request(
