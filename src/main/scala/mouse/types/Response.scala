@@ -28,7 +28,7 @@ case class Response(
   /**
    * Read body blocking. Wrapper for [[text]].
    */
-  def textBlocking()(using ExecutionContext, Codec): String =
+  def textBlocking()(using Codec, ExecutionContext): String =
     blockCall(text)
 
   /**
@@ -38,7 +38,7 @@ case class Response(
    * If the response body has already been read by either the [[writeToStream]] or [[toString]] methods, then this will
    * result in an empty String. This is because the [[InputStream]] will already be exhausted.
    */
-  def text(using ExecutionContext, Codec): Future[String] =
+  def text(using Codec, ExecutionContext): Future[String] =
     readBodyFromSource(body, headers.contentLength.map(_.toInt))
 
   def writeToStream(outputStream: OutputStream): Unit =

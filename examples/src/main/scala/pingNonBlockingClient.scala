@@ -20,7 +20,7 @@ import scala.concurrent.{Await, Future}
       (0 to 10_000).toList.map: _ =>
         for
           resp <- client.get("ping")
-          body <- resp.text()
+          body <- resp.text
         yield
           logger.info("""/ping response: "{}"""", body)
 

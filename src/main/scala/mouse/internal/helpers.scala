@@ -63,7 +63,8 @@ inline private[mouse] def writeHttpToOutputStream(outputStream: OutputStream)(
 inline private[mouse] def readBodyFromSource(
   body: InputStream,
   contentLength: Option[Int],
-)(using Codec, ExecutionContext) = Future:
+)(using ExecutionContext, Codec) = Future:
   val src = Source.fromInputStream(body)
-  contentLength.fold(src.mkString): len =>
-    src.take(len).mkString
+  contentLength
+    .fold(src.takeWhile(_ != -1))(src.take)
+    .mkString
