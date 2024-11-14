@@ -1,9 +1,12 @@
 package mouse.internal
 
+import mouse.headersToHeaderValues
 import mouse.types.Request
+
 import java.io.{ByteArrayInputStream, InputStream, OutputStream}
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.io.{Codec, Source}
 
 inline private[mouse] def blockCall[T](futureThunk: Future[T]): T =
   Await.result(futureThunk, Duration.Inf)
@@ -42,7 +45,7 @@ inline private[mouse] def writeHttpToOutputStream(outputStream: OutputStream)(
 
   // Content-Length as a valid Int or 0. If it's invalid or not present, it's ZERO!
   val contentLength = headers
-    .get(Constants.ContentLengthHeader)
+    .contentLength
     .flatMap(_.toIntOption)
     .getOrElse(0)
 
@@ -50,3 +53,18 @@ inline private[mouse] def writeHttpToOutputStream(outputStream: OutputStream)(
   if contentLength > 0 then outputStream.write(body.readNBytes(contentLength))
 
   outputStream.flush()
+
+/**
+ * Wrap a call to [[Source.fromInputStream]] and optionally read up a specific number of bytes.
+ *
+ * @param body          Source [[InputStream]]
+ * @param contentLength Num bytes to read, all if [[None]]
+ */
+inline private[mouse] def readBodyFromSource(
+  body: InputStream,
+  contentLength: Option[Int],
+)(using ExecutionContext, Codec) = Future:
+  val src = Source.fromInputStream(body)
+  contentLength
+    .fold(src.takeWhile(_ != -1))(src.take)
+    .mkString

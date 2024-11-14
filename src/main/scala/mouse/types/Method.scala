@@ -70,7 +70,21 @@ enum Method:
       case Put => "PUT"
       case Trace => "TRACE"
 
+/**
+ * All HTTP Methods defined as an enum.
+ *
+ * Methods will be used to define routes on a [[mouse.Server]], or when building a [[mouse.types.Request]]. In the
+ * case of a building a request, it's recommended to use one of the helper methods on the [[mouse.Client]] instead.
+ *
+ * Reference: [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods]]
+ */
 object Method:
+  /**
+   * Expressive name for [[Method.values]], while functionally equivalent, it will better document to users that the
+   * route utilizing this accepts all [[Method]]s.
+   */
+  lazy val All: Array[Method] = Method.values
+
   /**
    * Get method from a [[String]]. Case-sensitive.
    *

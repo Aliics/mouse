@@ -4,7 +4,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "examples",
     libraryDependencies ++= Seq(
-      "io.github.aliics" %% "mouse" % "0.5.2",
+      "io.github.aliics" %% "mouse" % "0.6.0",
       "org.slf4j" % "slf4j-simple" % "2.0.13",
     ),
   )

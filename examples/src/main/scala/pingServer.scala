@@ -16,10 +16,12 @@ private def ping(using Request) = Future:
  * Very simple ping server with one handler for GET [[ping]].
  */
 @main def pingServer(): Unit =
-  given Logger = LoggerFactory.getLogger("pingServer")
+  given Logger =
+    // System.setProperty(org.slf4j.simple.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "Debug")
+    LoggerFactory.getLogger("pingServer")
 
   Server(
     routes(
-      Method.Get / "ping" -> ping,
+      (Method.Get & Method.Post) / "ping" -> ping,
     ) *
   ).runBlocking(port = PingPort)

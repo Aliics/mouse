@@ -9,7 +9,9 @@ import scala.concurrent.{Await, Future}
  * Showcase non-blocking operations by querying the ping endpoint 10000 times using [[Future.sequence]].
  */
 @main def pingNonBlockingClient(): Unit =
-  given logger: Logger = LoggerFactory.getLogger("pingClient")
+  given logger: Logger =
+    // System.setProperty(org.slf4j.simple.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "Debug")
+    LoggerFactory.getLogger("pingNonBlockingClient")
 
   val client = Client("localhost", PingPort)
 
@@ -18,7 +20,7 @@ import scala.concurrent.{Await, Future}
       (0 to 10_000).toList.map: _ =>
         for
           resp <- client.get("ping")
-          body <- resp.text()
+          body <- resp.text
         yield
           logger.info("""/ping response: "{}"""", body)
 

@@ -28,6 +28,15 @@ case class RouteMatcher(
         case (l: String, r) => l == r
         case (RouteParam(_), _) => true
 
+/**
+ * Either a strictly matched string or user input referenced by name.
+ * These are the parts of a URI which are delimited by the / character.
+ */
 type RoutePart = String | RouteParam
 
+/**
+ * A part of a URI which is used as a [[String]] parameter. The value can be extracted from [[Request]]s
+ * with the [[routeParam]] function.
+ * @param name Name to reference the parameter
+ */
 case class RouteParam(name: String)
