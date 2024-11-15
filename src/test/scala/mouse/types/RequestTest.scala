@@ -18,7 +18,7 @@ class RequestTest extends AnyFunSuiteLike:
     assert(request.method == Method.Get)
     assert(request.uri == URI.create("/"))
     assert(request.version == Version(1, 1))
-    assert(request.headers == Map("Content-Type" -> "plain/text"))
+    assert(request.headers == Map(Headers.ContentType -> "plain/text"))
 
   test("standard POST request"):
     val Right(request) = parseRequest(
@@ -28,7 +28,7 @@ class RequestTest extends AnyFunSuiteLike:
     assert(request.method == Method.Post)
     assert(request.uri == URI.create("/create"))
     assert(request.version == Version(1, 1))
-    assert(request.headers == Map("Content-Type" -> "application/json"))
+    assert(request.headers == Map(Headers.ContentType -> "application/json"))
     assert(request.textBlocking() == """{"foo":"bar"}""")
 
   test("serialize request"):
@@ -37,8 +37,8 @@ class RequestTest extends AnyFunSuiteLike:
       uri = URI `create` "/hello",
       version = Version(1, 1),
       headers = Map(
-        "Content-Type" -> "application/json",
-        "Content-Length" -> "2",
+        Headers.ContentType -> "application/json",
+        Headers.ContentLength -> "2",
       ),
       body = stringToStream("{}"),
     )

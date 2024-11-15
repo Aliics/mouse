@@ -210,6 +210,6 @@ object Response:
       version = req.version,
       status = status,
       headers = headers
-        .updated(Constants.ContentLengthHeader, body.length.toString),
+        .updated(Headers.ContentLength, body.length.toString),
       body = stringToStream(body),
     )
