@@ -2,14 +2,12 @@ package mouse.types
 
 import mouse.errors.ParseError
 import mouse.internal.{blockCall, stringToStream}
-import mouse.types.{Method, Request, Version}
 import org.scalatest.funsuite.AnyFunSuiteLike
 
 import java.net.URI
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
-import scala.io.Source
 
 class RequestTest extends AnyFunSuiteLike:
   test("standard GET request"):
@@ -22,13 +20,16 @@ class RequestTest extends AnyFunSuiteLike:
 
   test("standard POST request"):
     val Right(request) = parseRequest(
-      "POST /create HTTP/1.1\r\nContent-Type: application/json\r\n\r\n{\"foo\":\"bar\"}",
+      "POST /create HTTP/1.1\r\nContent-Length: 13\r\nContent-Type: application/json\r\n\r\n{\"foo\":\"bar\"}",
     ): @unchecked
 
     assert(request.method == Method.Post)
     assert(request.uri == URI.create("/create"))
     assert(request.version == Version(1, 1))
-    assert(request.headers == Map(Headers.ContentType -> "application/json"))
+    assert(request.headers == Map(
+      Headers.ContentLength -> "13",
+      Headers.ContentType -> "application/json",
+    ))
     assert(request.textBlocking() == """{"foo":"bar"}""")
 
   test("serialize request"):
