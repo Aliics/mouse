@@ -55,16 +55,18 @@ inline private[mouse] def writeHttpToOutputStream(outputStream: OutputStream)(
   outputStream.flush()
 
 /**
- * Wrap a call to [[Source.fromInputStream]] and optionally read up a specific number of bytes.
+ * Wrap a call to [[Source.fromInputStream]] and take up to the number of bytes provided by [[contentLength]].
+ * If [[contentLength]] is [[None]], then no data will be read.
  *
  * @param body          Source [[InputStream]]
- * @param contentLength Num bytes to read, all if [[None]]
+ * @param contentLength Num bytes to read, none if [[None]]
  */
 inline private[mouse] def readBodyFromSource(
   body: InputStream,
   contentLength: Option[Int],
-)(using ExecutionContext, Codec) = Future:
-  val src = Source.fromInputStream(body)
-  contentLength
-    .fold(src.takeWhile(_ != -1))(src.take)
-    .mkString
+)(using ExecutionContext, Codec) =
+  contentLength match
+    case Some(len) => Future:
+      Source.fromInputStream(body).take(len).mkString
+    case None =>
+      Future successful ""

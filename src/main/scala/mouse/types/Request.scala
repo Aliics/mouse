@@ -19,7 +19,8 @@ import scala.io.{Codec, Source}
  * @param uri     Resource being requested
  * @param version HTTP version (1.1 only for now)
  * @param headers Key-value map entries
- * @param body    Body byte stream
+ * @param body    The raw body [[InputStream]], which was the original socket stream, with only the body's bytes
+ *                remaining. It is recommended to use the [[text]] method for reading the body, as it handles content-length.
  */
 case class Request(
   method: Method,
@@ -41,7 +42,7 @@ case class Request(
 
   /**
    * Read the body of the request as text, where the number of bytes to read is equal the Content-Length header.
-   * Assuming the header is not present, we will attempt to read until the input is exhausted.
+   * Assuming the header is not present, the resulting string will be empty.
    *
    * If the request body has already been read by either the [[writeToStream]] or [[toString]] methods, then this will
    * result in an empty String. This is because the [[InputStream]] will already be exhausted.
