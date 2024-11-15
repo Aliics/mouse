@@ -1,7 +1,7 @@
 package mouse
 
 import mouse.internal.{Constants, blockCall, stringToStream}
-import mouse.types.{Method, Request, Response, Version}
+import mouse.types.{Headers, Method, Request, Response, Version}
 import org.slf4j.Logger
 
 import java.io.InputStream
@@ -227,8 +227,8 @@ class Client(host: String, port: Int = 80)(using logger: Logger)(using Execution
         req
           .copy(
             headers = req.headers
-              .updated(Constants.HostHeader, host)
-              .updatedWith(Constants.ContentLengthHeader)(_ => contentLength.map(_.toString))
+              .updated(Headers.Host, host)
+              .updatedWith(Headers.ContentLength)(_ => contentLength.map(_.toString))
           )
           .writeToStream(s.getOutputStream)
       resp <-

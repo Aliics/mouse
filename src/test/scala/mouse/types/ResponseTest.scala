@@ -17,7 +17,7 @@ class ResponseTest extends AnyFunSuiteLike:
     val body = Source.fromInputStream(response.body).mkString
     assert(response.version == Version(1, 1))
     assert(response.status == Status.Ok)
-    assert(response.headers == Map("Content-Length" -> "1"))
+    assert(response.headers == Map(Headers.ContentLength -> "1"))
     assert(body == "E")
 
   test("serialize response"):
@@ -25,8 +25,8 @@ class ResponseTest extends AnyFunSuiteLike:
       version = Version(1, 1),
       status = Status.Ok,
       headers = Map(
-        "Content-Type" -> "application/json",
-        "Content-Length" -> "2",
+        Headers.ContentType -> "application/json",
+        Headers.ContentLength -> "2",
       ),
       body = stringToStream("{}"),
     )
